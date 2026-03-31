@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>숲잇다 — AI 환경교육 수업 지원 도구</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;700;900&family=Noto+Sans+KR:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--forest:#17362A;--forest2:#24523e;--moss:#4A9E73;--leaf:#86C9A4;--mist:#F2F5F2;--paper:#FAFCFA;--ink:#1A1E1A;--ink2:#4A524A;--amber:#D4A843;--ember:#D4603A;--border:rgba(23,54,42,.12);--shadow:0 2px 12px rgba(23,54,42,.08);--r:8px;--rl:14px;--sidebar:260px}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--mist);color:var(--ink);-webkit-font-smoothing:antialiased;min-height:100vh}
+button{cursor:pointer;font-family:inherit}
+select,input{font-family:inherit}
+.app-shell{display:flex;min-height:100vh}
+.sidebar{width:var(--sidebar);flex-shrink:0;background:var(--forest);min-height:100vh;display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;overflow-y:auto;z-index:100}
+.sidebar-logo{padding:1.5rem 1.2rem 1rem;border-bottom:1px solid rgba(255,255,255,.08)}
+.logo-ico{width:36px;height:36px;background:linear-gradient(135deg,var(--moss),var(--forest2));border-radius:9px;display:grid;place-items:center;font-size:16px;margin-bottom:.6rem}
+.logo-name{font-family:'Noto Serif KR',serif;font-size:1.35rem;font-weight:900;color:#fff}
+.logo-sub{font-family:'DM Mono',monospace;font-size:.6rem;color:var(--leaf);margin-top:2px;line-height:1.5}
+.sidebar-nav{padding:.75rem 0;flex:1}
+.nav-section{padding:.5rem 1rem .25rem;font-family:'DM Mono',monospace;font-size:.55rem;color:rgba(255,255,255,.3);letter-spacing:.12em;text-transform:uppercase}
+.nav-item{display:flex;align-items:center;gap:.6rem;padding:.65rem 1.2rem;cursor:pointer;font-size:.82rem;color:rgba(255,255,255,.65);transition:all .15s;border:none;background:none;width:100%;text-align:left;border-left:3px solid transparent}
+.nav-item:hover{background:rgba(255,255,255,.06);color:#fff}
+.nav-item.on{background:rgba(74,158,115,.18);color:#fff;border-left-color:var(--moss);font-weight:700}
+.nav-ico{font-size:1rem;flex-shrink:0}
+.nav-badge{font-size:.58rem;padding:1px 7px;border-radius:10px;background:rgba(74,158,115,.3);color:var(--leaf);margin-left:auto}
+.nav-soon{font-size:.58rem;padding:1px 7px;border-radius:10px;background:rgba(255,255,255,.08);color:rgba(255,255,255,.3);margin-left:auto}
+.sidebar-stats{padding:1rem 1.2rem;border-top:1px solid rgba(255,255,255,.08)}
+.stat-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:.4rem}
+.stat-val{font-family:'DM Mono',monospace;font-size:.95rem;color:var(--amber);font-weight:500}
+.stat-key{font-size:.65rem;color:rgba(255,255,255,.35)}
+.sidebar-notice{margin:.75rem 1.2rem;padding:.6rem .8rem;background:rgba(212,168,67,.12);border:1px solid rgba(212,168,67,.25);border-radius:var(--r);font-size:.65rem;color:var(--amber);line-height:1.55}
+.main{margin-left:var(--sidebar);flex:1;display:flex;flex-direction:column;min-height:100vh}
+.topbar{background:#fff;border-bottom:1px solid var(--border);padding:0 2rem;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.topbar-title{font-family:'Noto Serif KR',serif;font-size:1rem;font-weight:700;color:var(--forest)}
+.topbar-right{display:flex;align-items:center;gap:.75rem}
+.topbar-pill{background:var(--mist);border:1px solid var(--border);border-radius:20px;padding:3px 12px;font-size:.72rem;color:var(--ink2)}
+.topbar-badge{background:rgba(74,158,115,.12);border:1px solid rgba(74,158,115,.3);border-radius:20px;padding:3px 12px;font-size:.72rem;color:var(--moss);font-weight:600}
+.content{padding:2rem;max-width:960px}
+.panel{display:none}.panel.on{display:block}
+.hero-banner{background:linear-gradient(135deg,var(--forest) 0%,var(--forest2) 100%);border-radius:var(--rl);padding:1.75rem 2rem;margin-bottom:1.5rem;position:relative;overflow:hidden}
+.hero-banner::after{content:'';position:absolute;right:-40px;top:-40px;width:200px;height:200px;border-radius:50%;background:rgba(74,158,115,.12);pointer-events:none}
+.hero-tag{display:inline-flex;align-items:center;gap:5px;background:rgba(134,201,164,.15);border:1px solid rgba(134,201,164,.25);border-radius:20px;padding:2px 10px;font-family:'DM Mono',monospace;font-size:.6rem;color:var(--leaf);margin-bottom:.6rem}
+.hero-banner h1{font-family:'Noto Serif KR',serif;font-size:1.5rem;font-weight:900;color:#fff;line-height:1.4;margin-bottom:.4rem;position:relative;z-index:1}
+.hero-banner h1 em{font-style:normal;color:var(--amber)}
+.hero-sub{font-size:.82rem;color:var(--leaf);margin-bottom:1rem;position:relative;z-index:1}
+.hero-stats{display:flex;gap:2rem;flex-wrap:wrap;position:relative;z-index:1}
+.hs-n{font-family:'DM Mono',monospace;font-size:1.2rem;font-weight:500;color:var(--amber);display:block}
+.hs-l{font-size:.65rem;color:rgba(255,255,255,.4);margin-top:1px}
+.chain{display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin-bottom:1.25rem}
+.cn{background:var(--forest);color:#fff;border-radius:7px;padding:.3rem .75rem;font-size:.72rem;font-weight:600}
+.cn small{display:block;font-family:'DM Mono',monospace;font-size:.57rem;color:var(--leaf);font-weight:400;margin-top:1px}
+.ca{color:var(--border);font-size:.85rem}
+.card{background:#fff;border:1px solid var(--border);border-radius:var(--rl);padding:1.5rem;margin-bottom:1.25rem;box-shadow:var(--shadow)}
+.card-head{font-weight:700;font-size:.88rem;color:var(--forest);margin-bottom:1rem;display:flex;align-items:center;gap:.4rem}
+.frow{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1rem}
+.frow-4{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1rem}
+.frow-2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
+.fg{display:flex;flex-direction:column;gap:4px}
+label{font-size:.73rem;font-weight:600;color:var(--forest)}
+select,input[type="number"],input[type="text"]{font-size:.82rem;border:1.5px solid var(--border);border-radius:var(--r);padding:.5rem .8rem;background:var(--mist);color:var(--ink);outline:none;transition:border-color .15s;width:100%}
+select:focus,input:focus{border-color:var(--moss);background:#fff}
+.session-toggle{display:flex;gap:.5rem}
+.session-btn{flex:1;padding:.55rem;border:1.5px solid var(--border);border-radius:var(--r);font-size:.8rem;font-weight:600;background:var(--mist);color:var(--ink2);cursor:pointer;transition:all .15s;text-align:center}
+.session-btn.on{background:var(--forest);color:#fff;border-color:var(--forest)}
+.session-badge{font-size:.65rem;display:block;color:var(--ink2);font-weight:400;margin-top:2px}
+.session-btn.on .session-badge{color:var(--leaf)}
+.info{background:rgba(74,158,115,.07);border:1px solid rgba(74,158,115,.18);border-left:4px solid var(--moss);border-radius:var(--r);padding:.75rem 1rem;font-size:.78rem;color:var(--forest);line-height:1.65;margin-bottom:1rem}
+.warn{background:rgba(212,168,67,.07);border:1px solid rgba(212,168,67,.22);border-left:4px solid var(--amber);border-radius:var(--r);padding:.72rem 1rem;font-size:.76rem;color:#6b4c10;line-height:1.55;margin-bottom:1rem}
+.co2-src{background:rgba(23,54,42,.04);border:1px solid var(--border);border-radius:var(--r);padding:.65rem 1rem;font-size:.72rem;color:var(--ink2);line-height:1.65;margin-bottom:1rem}
+.co2-src strong{color:var(--forest)}
+.src-tag{display:inline-block;background:rgba(74,158,115,.12);border:1px solid rgba(74,158,115,.3);border-radius:4px;padding:1px 7px;font-size:.65rem;color:var(--moss);margin-right:4px;font-family:'DM Mono',monospace}
+.gen-btn{width:100%;padding:.9rem 1.2rem;border:none;border-radius:var(--r);font-size:.88rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:.75rem;transition:all .18s;letter-spacing:.01em;margin-bottom:.5rem}
+.gen-btn.primary{background:linear-gradient(135deg,var(--forest),var(--forest2));color:#fff;box-shadow:0 3px 12px rgba(23,54,42,.22)}
+.gen-btn.primary:hover{box-shadow:0 5px 20px rgba(23,54,42,.3);transform:translateY(-1px)}
+.gen-btn.primary:active{transform:translateY(0)}
+.gen-btn.primary:disabled{opacity:.5;cursor:not-allowed;transform:none!important;box-shadow:none!important}
+.gen-btn.secondary{background:#fff;color:var(--forest);border:1.5px solid var(--border)}
+.gen-btn.secondary:hover{border-color:var(--moss);color:var(--moss)}
+.gen-btn .ico{font-size:1.1rem;flex-shrink:0}
+.gen-btn .txt{flex:1;text-align:left}
+.gen-btn .arrow{font-size:.8rem;opacity:.5}
+.btn-row2{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:.5rem}
+.result-area{background:var(--forest);border-radius:var(--rl);padding:1.5rem;margin-bottom:1.25rem}
+.ra-head{font-family:'DM Mono',monospace;font-size:.6rem;color:var(--leaf);letter-spacing:.1em;margin-bottom:.85rem;display:flex;align-items:center;gap:8px}
+.ra-dot{width:6px;height:6px;border-radius:50%;background:var(--moss);animation:pulse 2s infinite;display:inline-block}
+.ra-dot.done{background:var(--amber);animation:none}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.ra-textarea{width:100%;min-height:140px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);border-radius:var(--r);color:rgba(255,255,255,.9);font-size:.82rem;line-height:1.75;padding:.85rem 1rem;resize:vertical;outline:none;font-family:'Noto Sans KR',sans-serif}
+.ra-textarea::placeholder{color:rgba(255,255,255,.28)}
+.ra-textarea:focus{border-color:var(--moss)}
+.ra-actions{display:flex;gap:.5rem;margin-top:.65rem;flex-wrap:wrap}
+.ra-btn{background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.18);border-radius:7px;padding:6px 14px;font-size:.76rem;cursor:pointer;transition:background .15s}
+.ra-btn:hover{background:rgba(255,255,255,.2)}
+.ra-btn.accent{background:var(--moss);border-color:var(--moss);font-weight:600}
+.ra-render{color:rgba(255,255,255,.92);font-size:.84rem;line-height:1.85;white-space:pre-wrap;word-break:break-word;margin-top:.85rem;border-top:1px solid rgba(255,255,255,.1);padding-top:.85rem;display:none}
+.ra-render h3{font-family:'Noto Serif KR',serif;color:var(--amber);font-size:.92rem;margin:1.1rem 0 .3rem;border-bottom:1px solid rgba(255,255,255,.08);padding-bottom:.28rem}
+.ra-render h3:first-child{margin-top:0}
+.ra-render strong{color:var(--leaf)}
+.loading-bar{height:3px;background:rgba(255,255,255,.1);border-radius:2px;margin:.75rem 0;overflow:hidden;display:none}
+.loading-bar.on{display:block}
+.loading-bar::after{content:'';display:block;height:100%;background:var(--moss);border-radius:2px;animation:loading 1.5s ease-in-out infinite}
+@keyframes loading{0%{width:0;margin-left:0}50%{width:60%;margin-left:20%}100%{width:0;margin-left:100%}}
+.co2-box{background:#0f2a1e;border-radius:var(--rl);padding:1.5rem;margin-top:.85rem;display:none}
+.co2-box.on{display:block}
+.co2-title{font-family:'Noto Serif KR',serif;color:var(--amber);font-size:.95rem;margin-bottom:1rem;font-weight:700}
+.co2-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.85rem;margin-bottom:1rem}
+.co2-cell{background:rgba(255,255,255,.07);border-radius:var(--r);padding:.85rem;text-align:center}
+.co2-n{font-family:'DM Mono',monospace;font-size:1.2rem;font-weight:500;color:#fff;display:block}
+.co2-u{font-size:.65rem;color:var(--leaf);margin-top:3px}
+.co2-src-note{font-size:.65rem;color:rgba(255,255,255,.3);margin-top:.75rem;line-height:1.55;padding-top:.75rem;border-top:1px solid rgba(255,255,255,.08)}
+.tree-row{font-size:1.1rem;letter-spacing:2px;line-height:1.65;word-break:break-all;margin-bottom:.3rem}
+.tree-lbl{font-size:.68rem;color:rgba(255,255,255,.38)}
+.grade-wrap{display:grid;grid-template-columns:repeat(3,1fr);gap:.85rem;margin-top:.85rem}
+.gc{border-radius:var(--r);padding:1rem}
+.gc.hi{background:#24523e;border:1px solid rgba(74,158,115,.4)}
+.gc.mi{background:#2a3a10;border:1px solid rgba(212,168,67,.35)}
+.gc.lo{background:#3a2010;border:1px solid rgba(212,96,58,.35)}
+.gc-lbl{font-size:.7rem;font-weight:700;margin-bottom:.4rem;color:var(--leaf)}
+.gc-body{color:#fff;font-size:.8rem;line-height:1.72}
+.model-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem}
+.model-head{font-weight:700;font-size:.8rem;color:var(--forest);margin-bottom:.5rem}
+.ms{display:flex;align-items:flex-start;gap:.6rem;background:var(--mist);border-radius:var(--r);padding:.55rem .8rem;margin-bottom:.4rem}
+.mn{width:20px;height:20px;border-radius:50%;background:var(--forest);color:#fff;font-size:.68rem;font-weight:700;display:grid;place-items:center;flex-shrink:0;margin-top:1px}
+.mt{font-size:.78rem;color:var(--ink2);line-height:1.45}
+.eco-box{background:rgba(212,168,67,.06);border:1px solid rgba(212,168,67,.22);border-left:4px solid var(--amber);border-radius:var(--r);padding:.8rem 1rem;margin-bottom:1rem;font-size:.78rem;color:var(--forest);line-height:1.55}
+.eco-replace{background:rgba(23,54,42,.05);border-radius:6px;padding:.4rem .65rem;font-size:.74rem;color:var(--forest2);margin-top:.38rem}
+.mission-box{background:rgba(74,158,115,.06);border:1px solid rgba(74,158,115,.18);border-radius:var(--r);padding:.85rem 1rem;margin-bottom:1rem}
+.mission-head{font-size:.78rem;font-weight:700;color:var(--forest);margin-bottom:.5rem}
+.mission-item{display:flex;align-items:flex-start;gap:.6rem;padding:.38rem 0;border-bottom:1px solid rgba(74,158,115,.1)}
+.mission-item:last-child{border-bottom:none}
+.mission-star{font-size:.75rem;flex-shrink:0;min-width:28px}
+.mission-name{font-size:.78rem;font-weight:700;color:var(--forest);margin-bottom:.07rem}
+.mission-desc{font-size:.74rem;color:var(--ink2);line-height:1.45}
+.mission-data{font-family:'DM Mono',monospace;font-size:.65rem;color:var(--moss)}
+.ctx-card{background:#e1f5ee;border:1px solid #5DCAA5;border-radius:var(--r);padding:1rem;margin-bottom:1.25rem;display:none}
+.ctx-head{font-size:.8rem;font-weight:700;color:#085041;margin-bottom:.35rem}
+.ctx-txt{font-size:.78rem;color:#0f6e56;line-height:1.55}
+.btn-pbl{background:linear-gradient(135deg,var(--moss),var(--forest2));color:#fff;border:none;border-radius:var(--r);padding:.8rem 1.2rem;font-size:.84rem;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:.85rem;cursor:pointer}
+.btn-pbl:hover{opacity:.88}
+.cs{text-align:center;padding:5rem 2rem}
+.cs-ico{font-size:3rem;margin-bottom:.75rem}
+.cs h2{font-family:'Noto Serif KR',serif;color:var(--forest);font-size:1.2rem;margin-bottom:.45rem}
+.cs p{color:#999;font-size:.82rem;line-height:1.65;max-width:340px;margin:0 auto}
+.toast{position:fixed;bottom:1.75rem;left:50%;transform:translateX(-50%) translateY(80px);background:var(--forest);color:#fff;border:1px solid var(--moss);border-radius:30px;padding:.65rem 1.5rem;font-size:.84rem;font-weight:600;box-shadow:0 6px 24px rgba(0,0,0,.2);z-index:999;transition:transform .3s cubic-bezier(.34,1.56,.64,1);pointer-events:none;display:flex;align-items:center;gap:.55rem}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.sec-tag{font-family:'DM Mono',monospace;font-size:.6rem;color:var(--moss);letter-spacing:.12em;text-transform:uppercase;margin-bottom:.25rem}
+.sec-title{font-family:'Noto Serif KR',serif;font-size:1.25rem;font-weight:700;color:var(--forest);margin-bottom:.3rem}
+.sec-desc{font-size:.82rem;color:var(--ink2);line-height:1.65;margin-bottom:1.5rem}
+@media(max-width:900px){.sidebar{position:relative;width:100%;height:auto;min-height:unset}.app-shell{flex-direction:column}.main{margin-left:0}.frow{grid-template-columns:1fr 1fr}.frow-4{grid-template-columns:1fr 1fr}.model-grid{grid-template-columns:1fr}.grade-wrap{grid-template-columns:1fr}.co2-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.frow{grid-template-columns:1fr}.frow-2{grid-template-columns:1fr}.btn-row2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="toast" id="toast"><span id="toast-ico">✅</span><span id="toast-msg">완료</span></div>
+<div class="app-shell">
+
+<!-- 사이드바 -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-ico">🌿</div>
+    <div class="logo-name">숲잇다</div>
+    <div class="logo-sub">AI 환경교육 수업 지원<br>Team Lena · A지역</div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">핵심 기능</div>
+    <button class="nav-item on" onclick="sw('t1',this)"><span class="nav-ico">📝</span>문제생성<span class="nav-badge">숲한장</span></button>
+    <button class="nav-item" onclick="sw('t2',this)"><span class="nav-ico">🌱</span>PBL 실천<span class="nav-badge">CO₂</span></button>
+    <button class="nav-item" onclick="sw('t3',this)"><span class="nav-ico">📋</span>수업안·생기부<span class="nav-badge">v2</span></button>
+    <div class="nav-section" style="margin-top:.5rem">추가 기능</div>
+    <button class="nav-item" onclick="sw('t4',this)"><span class="nav-ico">🤝</span>에코-셰어링<span class="nav-soon">준비중</span></button>
+  </nav>
+  <div class="sidebar-stats">
+    <div class="stat-row"><span class="stat-val">14개</span><span class="stat-key">공공데이터</span></div>
+    <div class="stat-row"><span class="stat-val">99,416ha</span><span class="stat-key">2025 A지역 산불</span></div>
+    <div class="stat-row"><span class="stat-val">39.3일</span><span class="stat-key">경북 폭염 역대 1위</span></div>
+    <div class="stat-row"><span class="stat-val">282종</span><span class="stat-key">멸종위기 야생생물</span></div>
+  </div>
+  <div class="sidebar-notice">🔒 공공누리 1유형<br>14개 공공데이터 기반<br>제8회 교육 공공데이터<br>AI 활용대회 · 일반부문</div>
+</aside>
+
+<!-- 메인 -->
+<main class="main">
+  <div class="topbar">
+    <div class="topbar-title" id="topbar-title">숲잇다 — 지역 데이터를 교실 수업과 학생 실천으로</div>
+    <div class="topbar-right">
+      <span class="topbar-badge">🌿 AI 수업 지원 도구</span>
+      <span class="topbar-pill">Team Lena</span>
+    </div>
+  </div>
+  <div class="content">
+
+  <!-- TAB 1 -->
+  <div id="t1" class="panel on">
+    <div class="sec-tag">기능 ① · SSIBL 1단계 — 질문하기</div>
+    <div class="sec-title">문제생성 (숲한장)</div>
+    <div class="sec-desc">학년과 교과를 선택하면 경북 공공데이터 기반 탐구 문제를 자동 생성합니다.</div>
+    <div class="hero-banner">
+      <div class="hero-tag">📊 경북 공공데이터 연계</div>
+      <h1>우리 지역의 데이터가<br><em>탐구 문제</em>가 됩니다</h1>
+      <div class="hero-sub">실제 경북 환경 데이터 → 2022 개정 교육과정 성취기준 → 학년별 탐구 문제</div>
+      <div class="hero-stats">
+        <div><span class="hs-n">99,416ha</span><div class="hs-l">2025 A지역 산불</div></div>
+        <div><span class="hs-n">39.3일</span><div class="hs-l">경북 폭염 역대 1위</div></div>
+        <div><span class="hs-n">97%</span><div class="hs-l">사과 재배지 2090 소멸</div></div>
+        <div><span class="hs-n">282종</span><div class="hs-l">멸종위기 야생생물</div></div>
+      </div>
+    </div>
+    <div class="chain">
+      <div class="cn">🌡️ 폭염<small>39.3일</small></div><div class="ca">→</div>
+      <div class="cn">🔥 산불<small>99,416ha</small></div><div class="ca">→</div>
+      <div class="cn">🐾 멸종위기<small>산양·삵·감돌고기</small></div><div class="ca">→</div>
+      <div class="cn">🍎 사과밭<small>97% 소멸</small></div><div class="ca">→</div>
+      <div class="cn">💧 낙동강<small>A등급 하락</small></div><div class="ca">→</div>
+      <div class="cn">🌿 실천<small>지금 여기서</small></div>
+    </div>
+    <div class="card">
+      <div class="card-head">⚙️ 탐구 문제 조건 설정</div>
+      <div class="frow">
+        <div class="fg"><label>학년</label><select id="q-grade" onchange="onGC('q')"><option>1학년</option><option>2학년</option><option>3학년</option><option>4학년</option><option selected>5학년</option><option>6학년</option></select></div>
+        <div class="fg"><label>교과 / 단원</label><select id="q-subject"></select></div>
+        <div class="fg"><label>데이터 키워드</label><select id="q-keyword"><option value="산불 및 산림보존">산불 및 산림보존</option><option value="폭염과 기후위기">폭염과 기후위기</option><option value="사과 재배지 변화">사과 재배지 변화</option><option value="멸종위기종과 서식지">멸종위기종과 서식지</option><option value="낙동강 수생태계">낙동강 수생태계</option><option value="재활용과 탄소저감">재활용과 탄소저감</option></select></div>
+      </div>
+      <div id="q-info" class="warn"></div>
+      <div class="info">💡 <strong>2025 최신 공공데이터</strong> — A지역 산불 99,416ha(사망 32명) · 폭염 39.3일(역대 1위) · 사과 97% 소멸 · 낙동강 A등급 14.4%→10.2%</div>
+      <button class="gen-btn primary" id="btn1" data-orig="탐구 문제 생성하기" onclick="gen1()"><span class="ico">✨</span><span class="txt">탐구 문제 생성하기</span><span class="arrow">→</span></button>
+    </div>
+    <div class="result-area" id="ra1" style="display:none">
+      <div class="ra-head"><span class="ra-dot" id="dot1"></span>숲잇다 AI · 탐구 문제 결과</div>
+      <div class="loading-bar" id="lb1"></div>
+      <div class="ra-render" id="r1"></div>
+      <div class="ra-actions">
+        <button class="ra-btn" onclick="copyRendered('r1')">📋 복사</button>
+        <button class="ra-btn" onclick="clearResult('ra1','r1','dot1','lb1')">🗑️ 초기화</button>
+        <button class="ra-btn" onclick="gen1()">🔄 다시 생성</button>
+      </div>
+      <button class="btn-pbl" onclick="goPBL()">🌱 이 탐구 → PBL 실천으로 이어가기 →</button>
+    </div>
+  </div>
+
+  <!-- TAB 2 -->
+  <div id="t2" class="panel">
+    <div class="sec-tag">기능 ② · SSIBL 3단계 — 실천하기</div>
+    <div class="sec-title">PBL 실천 프로젝트 + 탄소저감 시각화</div>
+    <div class="sec-desc">학년과 실천 주제를 선택하면 PBL 프로젝트를 설계하고 탄소저감 효과를 계산합니다.</div>
+    <div class="ctx-card" id="pbl-ctx-wrap"><div class="ctx-head">🔗 문제생성에서 연결됨</div><div id="pbl-ctx-txt" class="ctx-txt"></div></div>
+    <div class="card">
+      <div class="card-head">⚙️ PBL 프로젝트 조건</div>
+      <div class="frow-4">
+        <div class="fg"><label>학년</label><select id="p-grade" onchange="onGC('p')"><option>1학년</option><option>2학년</option><option>3학년</option><option>4학년</option><option selected>5학년</option><option>6학년</option></select></div>
+        <div class="fg"><label>기간</label><select id="p-weeks"><option>2주</option><option selected>4주</option><option>8주</option></select></div>
+        <div class="fg"><label>학급 인원</label><input type="number" id="c-stu" value="26" min="1" max="200"></div>
+        <div class="fg"><label>주간 분리배출(kg/인)</label><input type="number" id="c-rec" value="2.5" min="0.1" step="0.1"></div>
+      </div>
+      <div class="fg" style="margin-bottom:1rem"><label>실천 주제</label><select id="p-theme"><option value="분리배출과 탄소저감">분리배출과 탄소저감</option><option value="낙동강 수생태계 보호">낙동강 수생태계 보호</option><option value="A지역 멸종위기종 캠페인">A지역 멸종위기종 캠페인</option><option value="경북 사과밭 살리기">경북 사과밭 살리기</option><option value="산불 예방 캠페인">산불 예방 캠페인</option><option value="학교 에너지 절약">학교 에너지 절약</option></select></div>
+      <div id="p-missions" class="mission-box"><div class="mission-head">🎯 이 학년 추천 실천 미션</div><div id="p-mission-list"></div></div>
+      <div class="co2-src">
+        <strong>📐 탄소저감 산출 기준 (국가 공인)</strong><br>
+        <span class="src-tag">소나무 흡수</span> 소나무 30년생 숲 1ha = 연간 10.8톤 CO₂ 흡수 → 1그루 ≈ <strong>10.8kg/년</strong><br>
+        <span style="font-size:.65rem;color:#888">출처: 국립산림과학원 『주요 산림수종의 표준 탄소흡수량』, 탄소축적차이법(기후변화협약 국제표준), 2012</span><br><br>
+        <span class="src-tag">분리배출</span> 혼합 생활폐기물 재활용 시 소각 대비 CO₂ <strong>평균 0.44kg/kg 절감</strong><br>
+        <span style="font-size:.65rem;color:#888">출처: 환경부·한국환경공단 『재활용 전과정평가(LCA) 기반 온실가스 절감량』, ISO 14040 기준</span>
+      </div>
+      <button class="gen-btn primary" id="btn2" data-orig="PBL 프로젝트 설계하기" onclick="gen2()"><span class="ico">🌱</span><span class="txt">PBL 프로젝트 설계하기</span><span class="arrow">→</span></button>
+    </div>
+    <div class="result-area" id="ra2" style="display:none">
+      <div class="ra-head"><span class="ra-dot" id="dot2"></span>숲잇다 AI · PBL 프로젝트</div>
+      <div class="loading-bar" id="lb2"></div>
+      <div class="ra-render" id="r2"></div>
+      <div class="co2-box" id="co2-box">
+        <div class="co2-title">🌳 우리 반이 만드는 탄소저감 효과</div>
+        <div class="co2-grid">
+          <div class="co2-cell"><span class="co2-n" id="co2-tot">—</span><div class="co2-u">CO₂ 절감(kg)</div></div>
+          <div class="co2-cell"><span class="co2-n" id="co2-tr">—</span><div class="co2-u">소나무 효과(그루)</div></div>
+          <div class="co2-cell"><span class="co2-n" id="co2-pct">—</span><div class="co2-u">A지역 산림 기여율(%)</div></div>
+        </div>
+        <div class="tree-row" id="trees">🌱</div>
+        <div class="tree-lbl" id="tree-lbl">PBL 생성 후 자동 계산됩니다</div>
+        <div class="co2-src-note">
+          📎 소나무 흡수: 국립산림과학원 표준 탄소흡수량 (10.8kg/그루/년, 30년생 기준, 탄소축적차이법) · 분리배출: 환경부·한국환경공단 재활용 LCA 기준 (0.44kg CO₂/kg)
+        </div>
+      </div>
+      <div class="ra-actions">
+        <button class="ra-btn" onclick="copyRendered('r2')">📋 복사</button>
+        <button class="ra-btn" onclick="clearResult('ra2','r2','dot2','lb2')">🗑️ 초기화</button>
+        <button class="ra-btn" onclick="gen2()">🔄 다시 생성</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 3 -->
+  <div id="t3" class="panel">
+    <div class="sec-tag">기능 ③ · 교사 업무 경감 · v2</div>
+    <div class="sec-title">수업안 + 생활기록부 초안 생성기</div>
+    <div class="sec-desc">2022 개정 교육과정 성취기준 + 환경교육포털 자료 구조 + 경북 공공데이터가 결합된 수업안을 생성합니다.</div>
+    <div class="card">
+      <div class="card-head">📐 수업 모형</div>
+      <div class="model-grid">
+        <div>
+          <div class="model-head">🔬 SSIBL (EU 과학교육 모형)</div>
+          <div class="ms"><div class="mn">1</div><div class="mt">질문하기: 지역 데이터에서 문제 발견</div></div>
+          <div class="ms"><div class="mn">2</div><div class="mt">해결책 찾기: 과학적 원인·사회적 대응</div></div>
+          <div class="ms"><div class="mn">3</div><div class="mt">실천하기: 지역사회 연계 실행</div></div>
+        </div>
+        <div>
+          <div class="model-head">🏘️ 장소기반교육 PBE</div>
+          <div class="ms"><div class="mn">1</div><div class="mt">우리 동네 환경 데이터 관찰</div></div>
+          <div class="ms"><div class="mn">2</div><div class="mt">과거·현재 데이터로 변화 체감</div></div>
+          <div class="ms"><div class="mn">3</div><div class="mt">지역 기관에 건의·알림</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-head">⚙️ 수업안 생성 조건</div>
+      <div class="frow">
+        <div class="fg"><label>학년</label><select id="l-grade" onchange="onGC('l')"><option>1학년</option><option>2학년</option><option>3학년</option><option>4학년</option><option selected>5학년</option><option>6학년</option></select></div>
+        <div class="fg"><label>교과 / 단원</label><select id="l-subject"></select></div>
+        <div class="fg"><label>수업 주제</label><select id="l-topic" onchange="updateEco()"><option value="우리 동네 멸종위기종">우리 동네 멸종위기종</option><option value="낙동강은 건강할까">낙동강은 건강할까</option><option value="경북 사과밭이 줄어드는 이유">경북 사과밭이 줄어드는 이유</option><option value="2025 A지역 산불과 기후변화">2025 A지역 산불과 기후변화</option><option value="A지역의 식물 탐구">A지역의 식물 탐구</option><option value="분리배출로 경북 산림 지키기">분리배출로 경북 산림 지키기</option><option value="폭염 데이터로 기후변화 이해하기">폭염 데이터로 기후변화 이해하기</option></select></div>
+      </div>
+      <div class="frow-2">
+        <div class="fg"><label>수업 모형</label><select id="l-model"><option value="SSIBL">SSIBL</option><option value="PBE">장소기반교육 PBE</option><option value="SSIBL+PBE">SSIBL + PBE 통합</option></select></div>
+        <div class="fg">
+          <label>수업 차시</label>
+          <div class="session-toggle">
+            <button class="session-btn on" id="sess1" onclick="setSess(1)">1차시<span class="session-badge">40분</span></button>
+            <button class="session-btn" id="sess2" onclick="setSess(2)">2차시<span class="session-badge">80분</span></button>
+          </div>
+        </div>
+      </div>
+      <div class="eco-box">
+        <div style="font-weight:700;margin-bottom:.3rem;display:flex;align-items:center;gap:.4rem;flex-wrap:wrap">📚 <span id="eco-title">참조 환경교육 자료</span><span style="background:#E6F1FB;border:1px solid #B5D4F4;border-radius:12px;padding:1px 8px;font-size:.62rem;color:#0C447C">keep.go.kr · 공공누리 1유형</span></div>
+        <div class="eco-replace">⚠️ <strong style="color:var(--ember)">지역성 원칙:</strong> <span id="eco-replace"></span></div>
+      </div>
+      <div id="l-info" class="warn"></div>
+      <div class="info">💡 경북 멸종위기종: 반달가슴곰·수달·산양·삵·감돌고기·흰수마자 / A지역 식물 449종 / 2025 A지역 산불 99,416ha</div>
+      <button class="gen-btn primary" id="btn3a" data-orig="수업안 생성하기 (1차시 · 40분)" onclick="gen3a()"><span class="ico">📋</span><span class="txt" id="btn3a-txt">수업안 생성하기 (1차시 · 40분)</span><span class="arrow">→</span></button>
+      <div class="btn-row2">
+        <button class="gen-btn secondary" onclick="gen3b()">✏️ 생기부 초안 생성 (상·중·하)</button>
+        <button class="gen-btn secondary" onclick="gen3c()">📊 생기부 3수준 카드</button>
+      </div>
+    </div>
+    <div class="result-area" id="ra3" style="display:none">
+      <div class="ra-head"><span class="ra-dot" id="dot3"></span>숲잇다 AI · 수업안 / 생기부 초안</div>
+      <div class="loading-bar" id="lb3"></div>
+      <div class="ra-render" id="r3"></div>
+      <div class="grade-wrap" id="grade-wrap" style="display:none">
+        <div class="gc hi"><div class="gc-lbl">⬆ 상 (심화)</div><div class="gc-body" id="gc-hi"></div></div>
+        <div class="gc mi"><div class="gc-lbl">➡ 중 (기본)</div><div class="gc-body" id="gc-mi"></div></div>
+        <div class="gc lo"><div class="gc-lbl">⬇ 하 (지원)</div><div class="gc-body" id="gc-lo"></div></div>
+      </div>
+      <div class="ra-actions">
+        <button class="ra-btn" onclick="copyRendered('r3')">📋 복사</button>
+        <button class="ra-btn" onclick="clearResult('ra3','r3','dot3','lb3')">🗑️ 초기화</button>
+        <button class="ra-btn" onclick="if(lastGen3)lastGen3()">🔄 다시 생성</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 4 -->
+  <div id="t4" class="panel">
+    <div class="cs"><div class="cs-ico">🤝</div><h2>에코-셰어링 — 준비 중</h2><p>경북 환경교육 우수 수업 사례를 AI가 큐레이션해 공유하는 기능입니다.</p></div>
+  </div>
+
+  </div>
+</main>
+</div>
+
+<script>
+const SCHOOL='A초등학교',REGION='A지역';
+const PINE_KG=10.8,RECYCLE_FACTOR=0.44,FOREST_HA=106206;
+let selectedSession=1,lastGen3=null;
+
+function setSess(n){
+  selectedSession=n;
+  document.getElementById('sess1').classList.toggle('on',n===1);
+  document.getElementById('sess2').classList.toggle('on',n===2);
+  document.getElementById('btn3a-txt').textContent=`수업안 생성하기 (${n}차시 · ${n===1?'40':'80'}분)`;
+  document.getElementById('btn3a').setAttribute('data-orig',`수업안 생성하기 (${n}차시 · ${n===1?'40':'80'}분)`);
+}
+
+const GD={
+  '1학년':{subjects:[{v:'통합-봄1',l:'통합교과 — 봄 (학교, 우리들)'},{v:'통합-여름1',l:'통합교과 — 여름 (가족, 여름)'},{v:'통합-가을1',l:'통합교과 — 가을 (마을, 가을)'},{v:'통합-겨울1',l:'통합교과 — 겨울 (나라, 겨울)'}],ach:'[1슬02-03] 여름 동식물 탐구 · [1바02-02] 여름 날씨와 건강 · [1슬01-03] 학교 주변 탐색',note:'통합교과(주제 중심) — 별도 과학·사회 없음',missions:[{s:'⭐',n:'날씨 그림일기',d:'1주일 날씨·기온 그림일기',da:'경북 기온 변화 체감'},{s:'⭐',n:'나뭇잎 스케치북',d:'학교 주변 나뭇잎 5종 수집',da:'A지역 식물 449종'}]},
+  '2학년':{subjects:[{v:'통합-봄2',l:'통합교과 — 봄 (봄나들이)'},{v:'통합-여름2',l:'통합교과 — 여름 (초록이의 여름여행)'},{v:'통합-가을2',l:'통합교과 — 가을 (현장학습·동네)'},{v:'통합-겨울2',l:'통합교과 — 겨울 (두근두근 세계여행)'}],ach:'[2슬01-01] 학교 주변 자연·인공환경 관찰 · [2슬03-01] 여름 날씨와 생활 · [2바01-03] 자연과 더불어 생활',note:'통합교과(주제 중심) — 자연환경과 생활 중심',missions:[{s:'⭐',n:'나무 명찰 달기',d:'학교 나무 3그루 이름 찾아 명찰 달기',da:'A지역 식물 449종'},{s:'⭐',n:'탄소 저금통',d:'전기 절약 스티커 모으기',da:'탄소저감 실천'}]},
+  '3학년':{subjects:[{v:'과학3-동물',l:'과학 — 동물의 생활 (3-1)'},{v:'과학3-지표',l:'과학 — 지표의 변화 (3-1)'},{v:'과학3-날씨',l:'과학 — 날씨와 우리 생활 (3-2)'},{v:'사회3-고장',l:'사회 — 우리 고장의 환경과 생활 (3-1)'},{v:'수학3-막대',l:'수학 — 막대그래프 (3-2)'}],ach:'[4과09-01] 날씨와 우리 생활 관계 · [4사02-01] 고장의 자연환경 · [4수05-02] 막대그래프로 나타내기',note:'3학년: 과학(날씨·동물)·사회(고장)·수학(그래프) 중심',missions:[{s:'⭐⭐',n:'날씨 데이터 과학자',d:'온도 기록 → 막대그래프 → 경북 비교',da:'경북 폭염 23.8→39.3일'},{s:'⭐⭐',n:'멸종위기종 카드',d:'낙동강 감돌고기 카드 만들어 전시',da:'경북 멸종위기 1급'}]},
+  '4학년':{subjects:[{v:'과학4-식물',l:'과학 — 식물의 생활 (4-1)'},{v:'과학4-생물',l:'과학 — 생물 다양성과 보전 (4-2)'},{v:'사회4-문화',l:'사회 — 사회 변화와 문화 다양성 (4-2)'},{v:'사회4-공공',l:'사회 — 지역 공공기관과 주민 참여 (4-1)'},{v:'수학4-꺾은선',l:'수학 — 꺾은선그래프 (4-1)'}],ach:'[4과05-01] 생물 다양성 이해와 보전 · [4과03-01] 식물 생김새와 환경 · [4수05-03] 꺾은선그래프로 나타내기',note:'4학년: 생물다양성(과학)·꺾은선그래프(수학) 핵심 단원',missions:[{s:'⭐⭐',n:'사과 지도 탐험가',d:'마트 사과 원산지 조사 → 경북 사과 비율 지도',da:'사과 재배지 97% 소멸'},{s:'⭐⭐',n:'학교 숲 지도',d:'화단·나무 조사 → 생태 지도',da:'경북 시범학교 산림'}]},
+  '5학년':{subjects:[{v:'과학5-생태계',l:'과학 — 생태계와 환경 (5-2)'},{v:'과학5-날씨',l:'과학 — 날씨와 기후변화 (5-2)'},{v:'사회5-환경',l:'사회 — 환경 문제와 지속 가능한 발전 (5-2)'},{v:'수학5-평균',l:'수학 — 평균과 가능성 (5-2)'},{v:'실과5-재활용',l:'실과 — 생활 속 재활용·업사이클링 (5)'}],ach:'[6과12-01] 생태계 구성요소와 먹이관계 · [6사08-03] 지구촌 환경 문제 해결 · [6수05-01] 평균과 자료 비교',note:'5학년: 생태계(과학)·환경문제(사회)·평균(수학) 연계 효과적',missions:[{s:'⭐⭐⭐',n:'분리배출 데이터 과학자',d:'분리배출량 측정 → CO₂ 계산 → 소나무 환산',da:'환경부 재활용 LCA 기준'},{s:'⭐⭐',n:'낙동강 건강 리포터',d:'낙동강 방문·관찰 → 보고서',da:'A등급 14.4%→10.2%'}]},
+  '6학년':{subjects:[{v:'과학6-기후',l:'과학 — 기후변화와 대응 방안 (6-2)'},{v:'과학6-생태계',l:'과학 — 생태계 평형 (6-1)'},{v:'사회6-지속가능',l:'사회 — 지속 가능한 지구촌 (6-2)'},{v:'수학6-비율',l:'수학 — 비율 그래프 (6-1)'},{v:'실과6-환경',l:'실과 — 자원 재활용과 환경 보전 (6)'}],ach:'[6과13-02] 기후변화 현상·원인·대응 탐색 · [6과12-03] 생태계 평형 원리 · [6사09-02] 지속가능한 발전 노력',note:'6학년: 기후변화(과학)·지속가능발전(사회) — 경북 데이터와 직결',missions:[{s:'⭐⭐⭐',n:'산불 예방 캠페인단',d:'A지역 산불 원인 조사 → 포스터 → 게시',da:'2025 A지역 산불 99,416ha'},{s:'⭐⭐⭐',n:'기후 데이터 기자',d:'경북 폭염 10년 그래프 + 학교신문',da:'23.8일→39.3일 역대 1위'},{s:'⭐⭐⭐',n:'지역기관 건의문',d:'경북 환경 문제 → 지역 환경기관 편지',da:'경북 공공데이터 전체'}]}
+};
+const ECO_MAP={'우리 동네 멸종위기종':{t:'환경기념일 웹툰 3 — 생물다양성 (keep.go.kr)',r:'꿀벌·열대우림 → 낙동강 감돌고기·흰수마자, 경북 산양·삵 서식지 소실로 대체'},'낙동강은 건강할까':{t:'환경기념일 웹툰 3 — 생물다양성 (keep.go.kr)',r:'열대우림 → 낙동강 A등급 14.4%→10.2% 하락 데이터로 대체'},'경북 사과밭이 줄어드는 이유':{t:'환경기념일 웹툰 10 — 식량 (keep.go.kr)',r:'아프리카 사막화 → 경북 사과 재배적지 2090년 97% 소멸로 대체'},'2025 A지역 산불과 기후변화':{t:'초5~6 기후변화 대응 교과연계 생태전환교육 (keep.go.kr)',r:'북극 빙하 → 2025 A지역 산불 99,416ha + 경북 폭염 39.3일로 대체'},'A지역의 식물 탐구':{t:'초3~4 기후변화 대응 교과연계 생태전환교육 (keep.go.kr)',r:'북극곰·산호초 → A지역 식물 449종(기린초·생강나무·할미꽃)으로 대체'},'분리배출로 경북 산림 지키기':{t:'환경기념일 웹툰 5 — 자원순환 (keep.go.kr)',r:'인도·칠레 쓰레기산 → 경북 재활용률 74~89% + A지역 산림으로 대체'},'폭염 데이터로 기후변화 이해하기':{t:'초5~6 기후변화 대응 교과연계 생태전환교육 (keep.go.kr)',r:'전국 평균 기온 → 경북 폭염 23.8→39.3일 + 산불위험기간 173일로 대체'}};
+
+const SYS=`너는 경상북도 교육과정과 지역 생태 데이터에 정통한 수석 교사이자 AI 교육 설계자야. 서비스명은 "숲잇다". 모든 수치·소재는 경북·낙동강 지역 공공데이터로. 비지역 소재 절대 금지. 학교명→A초등학교, 지역명→A지역으로 표기.
+[경북 핵심 공공데이터]폭염: 2016년 23.8일→2025년 39.3일(역대 1위) / 2025 A지역 산불: 99,416ha·사망 32명·재산피해 1조 8,300억 / 산불위험기간: 현재 173일→1.5℃ 상승 시 233일 / 사과 재배적지: 2090년 97% 소멸(농진청) / A초등학교: 817→638명, 산림 약 70% / A지역 식물: 449종, 경북 전체 1,415종 / 멸종위기: 282종(감돌고기·흰수마자·산양·삵 등) / 낙동강 A등급: 2020년 14.4%→2023년 10.2% / 경북 재활용률: 74~89%
+[탄소 국가표준—반드시 사용]소나무: 국립산림과학원 표준 탄소흡수량(탄소축적차이법,기후변화협약 국제표준) → 30년생 1ha=연간 10.8톤, 1그루=10.8kg/년 / 분리배출: 환경부·한국환경공단 재활용 LCA(ISO 14040) → 혼합 생활폐기물 0.44kg CO2/kg 절감`;
+
+async function apiCall(prompt,maxTokens=1000){
+  const res=await fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt,maxTokens})});
+  const data=await res.json();
+  if(data.error) throw new Error(data.error);
+  return data.result;
+}
+
+async function runGen(prompt,maxTokens,onSuccess,btnId,dotId,lbId,areaId){
+  const btn=document.getElementById(btnId);
+  const dot=document.getElementById(dotId);
+  const lb=document.getElementById(lbId);
+  const area=document.getElementById(areaId);
+  if(btn){btn.disabled=true;btn.querySelector('.txt').textContent='⏳ AI 생성 중...';}
+  if(lb) lb.classList.add('on');
+  if(area) area.style.display='block';
+  showToast('⏳ AI가 생성 중입니다...','⏳');
+  try{
+    const result=await apiCall(prompt,maxTokens);
+    onSuccess(result);
+    showToast('✅ 생성 완료!','✅');
+    if(dot) dot.classList.add('done');
+  }catch(e){showToast('❌ 오류: '+e.message,'❌');}
+  finally{
+    if(btn){btn.disabled=false;btn.querySelector('.txt').textContent=btn.getAttribute('data-orig')||'생성하기';}
+    if(lb) lb.classList.remove('on');
+  }
+}
+
+let toastTimer;
+function showToast(msg,ico='✅'){
+  clearTimeout(toastTimer);
+  document.getElementById('toast-msg').textContent=msg;
+  document.getElementById('toast-ico').textContent=ico;
+  document.getElementById('toast').classList.add('show');
+  toastTimer=setTimeout(()=>document.getElementById('toast').classList.remove('show'),3500);
+}
+
+function sw(id,btn){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+  btn.classList.add('on');
+  const titles={t1:'문제생성 (숲한장)',t2:'PBL 실천 프로젝트',t3:'수업안 + 생기부 초안',t4:'에코-셰어링'};
+  document.getElementById('topbar-title').textContent='숲잇다 — '+(titles[id]||'');
+}
+
+function onGC(px){
+  const grade=document.getElementById(px+'-grade').value;
+  const data=GD[grade];if(!data)return;
+  const ss=document.getElementById(px+'-subject');
+  if(ss) ss.innerHTML=data.subjects.map(s=>`<option value="${s.v}">${s.l}</option>`).join('');
+  const info=document.getElementById(px+'-info');
+  if(info) info.innerHTML=`<strong>📌 ${grade} 성취기준:</strong> ${data.ach}<br><span style="font-size:.7rem;color:var(--ember)">⚠️ ${data.note}</span>`;
+  if(px==='p'){
+    const ml=document.getElementById('p-mission-list');
+    if(ml) ml.innerHTML=data.missions.map(m=>`<div class="mission-item"><div class="mission-star">${m.s}</div><div><div class="mission-name">${m.n}</div><div class="mission-desc">${m.d}</div><div class="mission-data">📊 ${m.da}</div></div></div>`).join('');
+  }
+  if(px==='l') updateEco();
+}
+
+function updateEco(){
+  const topic=document.getElementById('l-topic')?.value||'';
+  const grade=document.getElementById('l-grade')?.value||'';
+  const gm={'1학년':'초1-2','2학년':'초1-2','3학년':'초3-4','4학년':'초3-4','5학년':'초5-6','6학년':'초5-6'};
+  const def={'초1-2':{t:'초1~2 기후변화 대응 생태전환교육 (keep.go.kr)',r:'전국 날씨 → A지역 폭염일수·계절 변화 데이터로 대체'},'초3-4':{t:'초3~4 기후변화 대응 교과연계 생태전환교육 (keep.go.kr)',r:'북극곰 → 경북 사과밭·A지역 식물 449종으로 대체'},'초5-6':{t:'초5~6 기후변화 대응 교과연계 생태전환교육 (keep.go.kr)',r:'전국 평균 → A지역 산불·경북폭염·낙동강 실수치로 대체'}};
+  const eco=ECO_MAP[topic]||def[gm[grade]]||def['초5-6'];
+  document.getElementById('eco-title').textContent=eco.t;
+  document.getElementById('eco-replace').textContent=eco.r;
+}
+
+document.addEventListener('DOMContentLoaded',()=>{onGC('q');onGC('p');onGC('l');});
+
+let lastKW='',lastGR='';
+
+function goPBL(){
+  const km={'산불 및 산림보존':'산불 예방 캠페인','폭염과 기후위기':'학교 에너지 절약','사과 재배지 변화':'경북 사과밭 살리기','멸종위기종과 서식지':'A지역 멸종위기종 캠페인','낙동강 수생태계':'낙동강 수생태계 보호','재활용과 탄소저감':'분리배출과 탄소저감'};
+  const mapped=km[lastKW]||'분리배출과 탄소저감';
+  document.getElementById('p-grade').value=lastGR;
+  document.getElementById('p-theme').value=mapped;
+  onGC('p');
+  document.getElementById('pbl-ctx-txt').innerHTML=`<strong>탐구:</strong> ${lastGR} / <em>${lastKW}</em> → 실천 주제 <strong>"${mapped}"</strong> 자동 선택`;
+  document.getElementById('pbl-ctx-wrap').style.display='block';
+  document.querySelectorAll('.nav-item').forEach((b,i)=>{if(i===1)sw('t2',b);});
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function fmt(t){return t.replace(/^### (.+)$/gm,'<h3>$1</h3>').replace(/^## (.+)$/gm,'<h3>$1</h3>').replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');}
+
+function showResult(renderId,text,extra,dotId){
+  const el=document.getElementById(renderId);
+  el.innerHTML=fmt(text);el.style.display='block';
+  const dot=document.getElementById(dotId);if(dot)dot.classList.add('done');
+  if(extra==='co2'){
+    const stu=parseFloat(document.getElementById('c-stu').value)||26;
+    const rec=parseFloat(document.getElementById('c-rec').value)||2.5;
+    const wks=parseFloat(document.getElementById('p-weeks').value)||4;
+    const cv=stu*rec*wks*RECYCLE_FACTOR;
+    const tv=Math.round(cv/PINE_KG);
+    const pct=(cv/(FOREST_HA*PINE_KG)*100).toFixed(6);
+    document.getElementById('co2-tot').textContent=cv.toLocaleString('ko',{maximumFractionDigits:1});
+    document.getElementById('co2-tr').textContent=tv.toLocaleString('ko');
+    document.getElementById('co2-pct').textContent=pct;
+    document.getElementById('trees').textContent='🌲'.repeat(Math.min(tv,40))||'🌱';
+    document.getElementById('tree-lbl').textContent=`${stu}명 × ${wks}주 → 소나무 ${tv.toLocaleString('ko')}그루 효과 (국가표준 10.8kg/그루/년)`;
+    document.getElementById('co2-box').classList.add('on');
+  }
+  if(extra==='grade'){
+    const hiM=text.match(/### 상[^\n]*\n([\s\S]*?)(?=### 중|$)/);
+    const miM=text.match(/### 중[^\n]*\n([\s\S]*?)(?=### 하|$)/);
+    const loM=text.match(/### 하[^\n]*\n([\s\S]*?)$/);
+    if(hiM||miM||loM){
+      document.getElementById('gc-hi').textContent=hiM?hiM[1].trim():'';
+      document.getElementById('gc-mi').textContent=miM?miM[1].trim():'';
+      document.getElementById('gc-lo').textContent=loM?loM[1].trim():'';
+      document.getElementById('grade-wrap').style.display='grid';
+    }
+  }
+}
+
+function copyRendered(id){const text=document.getElementById(id).innerText||'';if(!text){showToast('렌더링된 내용이 없습니다','⚠️');return;}navigator.clipboard.writeText(text).then(()=>showToast('✅ 복사됐습니다!','✅'));}
+
+function clearResult(areaId,renderId,dotId,lbId){
+  document.getElementById(areaId).style.display='none';
+  const r=document.getElementById(renderId);r.innerHTML='';r.style.display='none';
+  const dot=document.getElementById(dotId);if(dot)dot.classList.remove('done');
+  if(renderId==='r3')document.getElementById('grade-wrap').style.display='none';
+  if(renderId==='r2')document.getElementById('co2-box').classList.remove('on');
+}
+
+function gen1(){
+  const grade=document.getElementById('q-grade').value;
+  const subLabel=document.getElementById('q-subject').options[document.getElementById('q-subject').selectedIndex]?.text||'';
+  const kw=document.getElementById('q-keyword').value;
+  const data=GD[grade];
+  lastKW=kw;lastGR=grade;
+  const p=`${SYS}\n\n숲잇다: [${grade} / ${subLabel}] [${kw}] SSIBL 1단계 탐구 문제.\n★ 교육과정: ${data.ach}\n★ 주의: ${data.note}\n★ 원칙: 경북 지역 공공데이터만. 학교명→A초등학교. 4개 섹션 완성.\n\n### 🌱 생각 깨우기\n(${grade} 학생이 경북 일상에서 느낄 수 있는 도입 질문, 2~3줄)\n\n### 📊 탐구 문제\n(경북 실제 수치 포함, 3~4줄)\n\n### ✅ 정답과 해설\n(${grade} 눈높이 풀이, 3줄 이내)\n\n### 💭 다음 실천으로\n(경북에서 ${grade} 학생이 직접 할 수 있는 실천 한 문장)`;
+  runGen(p,700,(result)=>showResult('r1',result,'','dot1'),'btn1','dot1','lb1','ra1');
+}
+
+function gen2(){
+  const grade=document.getElementById('p-grade').value;
+  const weeks=document.getElementById('p-weeks').value;
+  const theme=document.getElementById('p-theme').value;
+  const stu=parseFloat(document.getElementById('c-stu').value)||26;
+  const rec=parseFloat(document.getElementById('c-rec').value)||2.5;
+  const wks=parseFloat(weeks)||4;
+  const co2=(stu*rec*wks*RECYCLE_FACTOR).toFixed(1);
+  const trees=Math.round(parseFloat(co2)/PINE_KG);
+  const data=GD[grade];
+  const ml=data.missions.map(m=>`${m.s} [${m.n}] ${m.d}`).join('\n');
+  const p=`${SYS}\n\n숲잇다: A초등학교 [${grade}] ${stu}명, [${weeks}짜리 ${theme}] PBL.\n★ 성취기준: ${data.ach}\n★ 실천미션: ${ml}\n★ 탄소 국가표준: ${stu}명×${wks}주×${rec}kg×0.44(환경부 LCA) = CO₂ ${co2}kg = 소나무 ${trees}그루(국립산림과학원 10.8kg/그루)\n★ 원칙: 경북 공공데이터. 학교명→A초등학교. 5개 섹션 완성.\n\n### 🎯 프로젝트 개요\n### 📅 주차별 활동 (${wks}주)\n### 🌿 탄소저감 계산 (국가표준 수치 기반)\n### 🏛️ 지역 연계 (PBE 3단계)\n(지역 환경기관·환경교육센터·수목원 건의·발표)\n### 📝 평가`;
+  runGen(p,1000,(result)=>showResult('r2',result,'co2','dot2'),'btn2','dot2','lb2','ra2');
+}
+
+function gen3a(){
+  lastGen3=gen3a;
+  const grade=document.getElementById('l-grade').value;
+  const subLabel=document.getElementById('l-subject').options[document.getElementById('l-subject').selectedIndex]?.text||'';
+  const topic=document.getElementById('l-topic').value;
+  const model=document.getElementById('l-model').value;
+  const sess=selectedSession;
+  const min=sess===1?40:80;
+  const data=GD[grade];
+  const eco=ECO_MAP[topic]||{t:'기후변화 대응 교과연계 생태전환교육 (keep.go.kr)',r:'전국 평균 → 경북 실수치로 대체'};
+  const ml=data.missions.slice(0,2).map(m=>`${m.s} [${m.n}] ${m.d}`).join('\n');
+  const intro=sess===1?'8분':'15분',body=sess===1?'25분':'50분',close=sess===1?'7분':'15분';
+  const p=`${SYS}\n\n숲잇다: 경북(A지역) [${grade}] [${subLabel}] [${topic}] ${sess}차시(${min}분) 수업안. 모형: ${model}\n★ 교육과정: ${data.ach}\n★ 주의: ${data.note}\n★ 참조자료: [${eco.t}] → ${eco.r}\n★ 탄소 국가표준: 소나무 10.8kg/그루/년(국립산림과학원), 분리배출 0.44kg CO2/kg(환경부 LCA)\n★ 원칙: 경북 공공데이터. 학교명→A초등학교. ${sess===2?'2차시 분량 상세히(활동 4~5가지 포함)':'간결하게(활동 2~3가지)'}.\n★ 실천미션: ${ml}\n5개 섹션 완성.\n\n### 📌 수업 개요\n(학년, 교과, 성취기준 코드, 핵심역량, ${sess}차시 ${min}분)\n\n### 🔍 도입 (${intro})\n(PBE 1단계: 경북 실제 데이터·수치로 흥미 유발)\n\n### 🔬 전개 (${body})\n(SSIBL 1→2단계: 경북 데이터 탐구→원인·해결책. ${sess===2?'활동 4~5가지 상세 기술':'활동 2~3가지'})\n\n### 🌱 정리·실천 (${close})\n(SSIBL 3단계: 실천미션 선택 + 지역 기관 연계)\n\n### 📋 준비물 및 유의사항`;
+  runGen(p,sess===1?1200:1800,(result)=>showResult('r3',result,'','dot3'),'btn3a','dot3','lb3','ra3');
+}
+
+function gen3b(){
+  lastGen3=gen3b;
+  const grade=document.getElementById('l-grade').value;
+  const topic=document.getElementById('l-topic').value;
+  const p=`${SYS}\n\n숲잇다: 경북(A지역) [${grade}] [${topic}] 수업 학생의 학교생활기록부 행동특성 및 종합의견 초안.\n★ 경북 실제 데이터(낙동강·멸종위기종·사과재배지·A지역 산불) 분석 활동 구체적 언급.\n★ 학교명 A초등학교, 학생 이름 OOO. 전문적 교사 문체.\n★ 핵심: 상·중·하 3개를 모두 완성할 것. 각 수준 80~100자. 내용이 잘리지 않게 3개 전부 완전한 문장으로.\n\n### 상 (심화 수준)\n(자기주도적 탐구와 지역 연계 실천 강조, 80~100자 완전한 문장)\n\n### 중 (기본 수준)\n(탐구 참여와 개념 이해 중심, 80~100자 완전한 문장)\n\n### 하 (지원 수준)\n(참여 과정과 성장 가능성 중심, 80~100자 완전한 문장)`;
+  runGen(p,1500,(result)=>showResult('r3',result,'grade','dot3'),'btn3a','dot3','lb3','ra3');
+}
+
+function gen3c(){
+  lastGen3=gen3c;
+  const grade=document.getElementById('l-grade').value;
+  const topic=document.getElementById('l-topic').value;
+  const p=`${SYS}\n\n숲잇다: 경북(A지역) [${grade}] [${topic}] 수업 수준별 생기부 카드.\n★ 경북 데이터 분석 활동 구체적 언급. 학생 이름 OOO.\n★ 핵심: 상·중·하 3개 모두 완성. 각 수준 80~100자. 절대 잘리지 않게 3개 전부.\n\n### 상 (심화 수준)\n(80~100자 완전한 문장)\n\n### 중 (기본 수준)\n(80~100자 완전한 문장)\n\n### 하 (지원 수준)\n(80~100자 완전한 문장)`;
+  runGen(p,1500,(result)=>showResult('r3',result,'grade','dot3'),'btn3a','dot3','lb3','ra3');
+}
+</script>
+</body>
+</html>
