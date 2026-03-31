@@ -154,7 +154,7 @@ select:focus,input:focus{border-color:var(--moss);background:#fff}
 <body>
 <div class="toast" id="toast"><span id="toast-ico">✅</span><span id="toast-msg">완료</span></div>
 <div class="app-shell">
-
+ 
 <!-- 사이드바 -->
 <aside class="sidebar">
   <div class="sidebar-logo">
@@ -178,7 +178,7 @@ select:focus,input:focus{border-color:var(--moss);background:#fff}
   </div>
   <div class="sidebar-notice">🔒 공공누리 1유형<br>14개 공공데이터 기반<br>제8회 교육 공공데이터<br>AI 활용대회 · 일반부문</div>
 </aside>
-
+ 
 <!-- 메인 -->
 <main class="main">
   <div class="topbar">
@@ -189,7 +189,7 @@ select:focus,input:focus{border-color:var(--moss);background:#fff}
     </div>
   </div>
   <div class="content">
-
+ 
   <!-- TAB 1 -->
   <div id="t1" class="panel on">
     <div class="sec-tag">기능 ① · SSIBL 1단계 — 질문하기</div>
@@ -237,7 +237,7 @@ select:focus,input:focus{border-color:var(--moss);background:#fff}
       <button class="btn-pbl" onclick="goPBL()">🌱 이 탐구 → PBL 실천으로 이어가기 →</button>
     </div>
   </div>
-
+ 
   <!-- TAB 2 -->
   <div id="t2" class="panel">
     <div class="sec-tag">기능 ② · SSIBL 3단계 — 실천하기</div>
@@ -287,12 +287,31 @@ select:focus,input:focus{border-color:var(--moss);background:#fff}
       </div>
     </div>
   </div>
-
+ 
   <!-- TAB 3 -->
   <div id="t3" class="panel">
     <div class="sec-tag">기능 ③ · 교사 업무 경감 · v2</div>
     <div class="sec-title">수업안 + 생활기록부 초안 생성기</div>
-    <div class="sec-desc">2022 개정 교육과정 성취기준 + 환경교육포털 자료 구조 + 경북 공공데이터가 결합된 수업안을 생성합니다.</div>
+    <div class="sec-desc">앞서 생성한 탐구문제·PBL 내용이 자동으로 연결됩니다. 수업 모형과 차시만 선택하면 됩니다.</div>
+    <!-- 앞 단계 컨텍스트 자동 연결 배너 -->
+    <div id="ctx-banner" style="display:none;background:linear-gradient(135deg,#1a3a2a,#24523e);border-radius:14px;padding:1.1rem 1.4rem;margin-bottom:1.25rem;border:1px solid rgba(74,158,115,.3)">
+      <div style="font-family:'DM Mono',monospace;font-size:.58rem;color:var(--leaf);letter-spacing:.1em;margin-bottom:.65rem">🔗 앞 단계에서 자동 연결된 내용</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.75rem">
+        <div style="background:rgba(255,255,255,.07);border-radius:8px;padding:.65rem .8rem">
+          <div style="font-size:.62rem;color:rgba(255,255,255,.4);margin-bottom:.2rem">① 학년 · 교과</div>
+          <div id="ctx-grade-sub" style="font-size:.8rem;color:#fff;font-weight:600">—</div>
+        </div>
+        <div style="background:rgba(255,255,255,.07);border-radius:8px;padding:.65rem .8rem">
+          <div style="font-size:.62rem;color:rgba(255,255,255,.4);margin-bottom:.2rem">② 데이터 키워드</div>
+          <div id="ctx-kw" style="font-size:.8rem;color:var(--amber);font-weight:600">—</div>
+        </div>
+        <div style="background:rgba(255,255,255,.07);border-radius:8px;padding:.65rem .8rem">
+          <div style="font-size:.62rem;color:rgba(255,255,255,.4);margin-bottom:.2rem">③ PBL 실천 주제</div>
+          <div id="ctx-theme" style="font-size:.8rem;color:var(--leaf);font-weight:600">—</div>
+        </div>
+      </div>
+      <div style="margin-top:.6rem;font-size:.72rem;color:rgba(255,255,255,.45)">⬇ 아래 옵션은 위 내용 기반으로 자동 설정됩니다. 필요시 수동 변경 가능.</div>
+    </div>
     <div class="card">
       <div class="card-head">📐 수업 모형</div>
       <div class="model-grid">
@@ -321,9 +340,9 @@ select:focus,input:focus{border-color:var(--moss);background:#fff}
         <div class="fg"><label>수업 모형</label><select id="l-model"><option value="SSIBL">SSIBL</option><option value="PBE">장소기반교육 PBE</option><option value="SSIBL+PBE">SSIBL + PBE 통합</option></select></div>
         <div class="fg">
           <label>수업 차시</label>
-          <div class="session-toggle">
-            <button class="session-btn on" id="sess1" onclick="setSess(1)">1차시<span class="session-badge">40분</span></button>
-            <button class="session-btn" id="sess2" onclick="setSess(2)">2차시<span class="session-badge">80분</span></button>
+          <div style="display:flex;gap:.5rem;margin-top:2px">
+            <button class="session-btn on" id="sess1" onclick="setSess(1)" style="flex:1;padding:.5rem .4rem;border:1.5px solid var(--border);border-radius:8px;font-size:.8rem;font-weight:600;background:var(--mist);color:var(--ink2);cursor:pointer;text-align:center;transition:all .15s">1차시<span style="font-size:.65rem;display:block;color:var(--ink2);font-weight:400;margin-top:2px">40분</span></button>
+            <button class="session-btn" id="sess2" onclick="setSess(2)" style="flex:1;padding:.5rem .4rem;border:1.5px solid var(--border);border-radius:8px;font-size:.8rem;font-weight:600;background:var(--mist);color:var(--ink2);cursor:pointer;text-align:center;transition:all .15s">2차시<span style="font-size:.65rem;display:block;color:var(--ink2);font-weight:400;margin-top:2px">80분</span></button>
           </div>
         </div>
       </div>
@@ -355,21 +374,45 @@ select:focus,input:focus{border-color:var(--moss);background:#fff}
       </div>
     </div>
   </div>
-
+ 
   <!-- TAB 4 -->
   <div id="t4" class="panel">
     <div class="cs"><div class="cs-ico">🤝</div><h2>에코-셰어링 — 준비 중</h2><p>경북 환경교육 우수 수업 사례를 AI가 큐레이션해 공유하는 기능입니다.</p></div>
   </div>
-
+ 
   </div>
 </main>
 </div>
-
+ 
 <script>
 const SCHOOL='A초등학교',REGION='A지역';
+ 
+// ━━ 전역 컨텍스트 — 탭 간 자동 데이터 공유 ━━
+const CTX = {
+  grade:'', subLabel:'', kw:'', ach:'', note:'',
+  pblTheme:'', pblWeeks:''
+};
+ 
+function updateCtxBanner(){
+  const banner = document.getElementById('ctx-banner');
+  if(!banner) return;
+  const hasData = CTX.grade || CTX.kw;
+  banner.style.display = hasData ? 'block' : 'none';
+  if(CTX.grade && CTX.subLabel){
+    document.getElementById('ctx-grade-sub').textContent = `${CTX.grade} · ${CTX.subLabel}`;
+  }
+  if(CTX.kw) document.getElementById('ctx-kw').textContent = CTX.kw;
+  if(CTX.pblTheme) document.getElementById('ctx-theme').textContent = CTX.pblTheme;
+ 
+  // 탭3 셀렉트도 자동 업데이트
+  if(CTX.grade){
+    const lg = document.getElementById('l-grade');
+    if(lg && lg.value !== CTX.grade){ lg.value = CTX.grade; onGC('l'); }
+  }
+}
 const PINE_KG=10.8,RECYCLE_FACTOR=0.44,FOREST_HA=106206;
 let selectedSession=1,lastGen3=null;
-
+ 
 function setSess(n){
   selectedSession=n;
   document.getElementById('sess1').classList.toggle('on',n===1);
@@ -377,7 +420,7 @@ function setSess(n){
   document.getElementById('btn3a-txt').textContent=`수업안 생성하기 (${n}차시 · ${n===1?'40':'80'}분)`;
   document.getElementById('btn3a').setAttribute('data-orig',`수업안 생성하기 (${n}차시 · ${n===1?'40':'80'}분)`);
 }
-
+ 
 const GD={
   '1학년':{subjects:[{v:'통합-봄1',l:'통합교과 — 봄 (학교, 우리들)'},{v:'통합-여름1',l:'통합교과 — 여름 (가족, 여름)'},{v:'통합-가을1',l:'통합교과 — 가을 (마을, 가을)'},{v:'통합-겨울1',l:'통합교과 — 겨울 (나라, 겨울)'}],ach:'[1슬02-03] 여름 동식물 탐구 · [1바02-02] 여름 날씨와 건강 · [1슬01-03] 학교 주변 탐색',note:'통합교과(주제 중심) — 별도 과학·사회 없음',missions:[{s:'⭐',n:'날씨 그림일기',d:'1주일 날씨·기온 그림일기',da:'경북 기온 변화 체감'},{s:'⭐',n:'나뭇잎 스케치북',d:'학교 주변 나뭇잎 5종 수집',da:'A지역 식물 449종'}]},
   '2학년':{subjects:[{v:'통합-봄2',l:'통합교과 — 봄 (봄나들이)'},{v:'통합-여름2',l:'통합교과 — 여름 (초록이의 여름여행)'},{v:'통합-가을2',l:'통합교과 — 가을 (현장학습·동네)'},{v:'통합-겨울2',l:'통합교과 — 겨울 (두근두근 세계여행)'}],ach:'[2슬01-01] 학교 주변 자연·인공환경 관찰 · [2슬03-01] 여름 날씨와 생활 · [2바01-03] 자연과 더불어 생활',note:'통합교과(주제 중심) — 자연환경과 생활 중심',missions:[{s:'⭐',n:'나무 명찰 달기',d:'학교 나무 3그루 이름 찾아 명찰 달기',da:'A지역 식물 449종'},{s:'⭐',n:'탄소 저금통',d:'전기 절약 스티커 모으기',da:'탄소저감 실천'}]},
@@ -387,18 +430,18 @@ const GD={
   '6학년':{subjects:[{v:'과학6-기후',l:'과학 — 기후변화와 대응 방안 (6-2)'},{v:'과학6-생태계',l:'과학 — 생태계 평형 (6-1)'},{v:'사회6-지속가능',l:'사회 — 지속 가능한 지구촌 (6-2)'},{v:'수학6-비율',l:'수학 — 비율 그래프 (6-1)'},{v:'실과6-환경',l:'실과 — 자원 재활용과 환경 보전 (6)'}],ach:'[6과13-02] 기후변화 현상·원인·대응 탐색 · [6과12-03] 생태계 평형 원리 · [6사09-02] 지속가능한 발전 노력',note:'6학년: 기후변화(과학)·지속가능발전(사회) — 경북 데이터와 직결',missions:[{s:'⭐⭐⭐',n:'산불 예방 캠페인단',d:'A지역 산불 원인 조사 → 포스터 → 게시',da:'2025 A지역 산불 99,416ha'},{s:'⭐⭐⭐',n:'기후 데이터 기자',d:'경북 폭염 10년 그래프 + 학교신문',da:'23.8일→39.3일 역대 1위'},{s:'⭐⭐⭐',n:'지역기관 건의문',d:'경북 환경 문제 → 지역 환경기관 편지',da:'경북 공공데이터 전체'}]}
 };
 const ECO_MAP={'우리 동네 멸종위기종':{t:'환경기념일 웹툰 3 — 생물다양성 (keep.go.kr)',r:'꿀벌·열대우림 → 낙동강 감돌고기·흰수마자, 경북 산양·삵 서식지 소실로 대체'},'낙동강은 건강할까':{t:'환경기념일 웹툰 3 — 생물다양성 (keep.go.kr)',r:'열대우림 → 낙동강 A등급 14.4%→10.2% 하락 데이터로 대체'},'경북 사과밭이 줄어드는 이유':{t:'환경기념일 웹툰 10 — 식량 (keep.go.kr)',r:'아프리카 사막화 → 경북 사과 재배적지 2090년 97% 소멸로 대체'},'2025 A지역 산불과 기후변화':{t:'초5~6 기후변화 대응 교과연계 생태전환교육 (keep.go.kr)',r:'북극 빙하 → 2025 A지역 산불 99,416ha + 경북 폭염 39.3일로 대체'},'A지역의 식물 탐구':{t:'초3~4 기후변화 대응 교과연계 생태전환교육 (keep.go.kr)',r:'북극곰·산호초 → A지역 식물 449종(기린초·생강나무·할미꽃)으로 대체'},'분리배출로 경북 산림 지키기':{t:'환경기념일 웹툰 5 — 자원순환 (keep.go.kr)',r:'인도·칠레 쓰레기산 → 경북 재활용률 74~89% + A지역 산림으로 대체'},'폭염 데이터로 기후변화 이해하기':{t:'초5~6 기후변화 대응 교과연계 생태전환교육 (keep.go.kr)',r:'전국 평균 기온 → 경북 폭염 23.8→39.3일 + 산불위험기간 173일로 대체'}};
-
+ 
 const SYS=`너는 경상북도 교육과정과 지역 생태 데이터에 정통한 수석 교사이자 AI 교육 설계자야. 서비스명은 "숲잇다". 모든 수치·소재는 경북·낙동강 지역 공공데이터로. 비지역 소재 절대 금지. 학교명→A초등학교, 지역명→A지역으로 표기.
 [경북 핵심 공공데이터]폭염: 2016년 23.8일→2025년 39.3일(역대 1위) / 2025 A지역 산불: 99,416ha·사망 32명·재산피해 1조 8,300억 / 산불위험기간: 현재 173일→1.5℃ 상승 시 233일 / 사과 재배적지: 2090년 97% 소멸(농진청) / A초등학교: 817→638명, 산림 약 70% / A지역 식물: 449종, 경북 전체 1,415종 / 멸종위기: 282종(감돌고기·흰수마자·산양·삵 등) / 낙동강 A등급: 2020년 14.4%→2023년 10.2% / 경북 재활용률: 74~89%
 [탄소 국가표준—반드시 사용]소나무: 국립산림과학원 표준 탄소흡수량(탄소축적차이법,기후변화협약 국제표준) → 30년생 1ha=연간 10.8톤, 1그루=10.8kg/년 / 분리배출: 환경부·한국환경공단 재활용 LCA(ISO 14040) → 혼합 생활폐기물 0.44kg CO2/kg 절감`;
-
+ 
 async function apiCall(prompt,maxTokens=1000){
   const res=await fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt,maxTokens})});
   const data=await res.json();
   if(data.error) throw new Error(data.error);
   return data.result;
 }
-
+ 
 async function runGen(prompt,maxTokens,onSuccess,btnId,dotId,lbId,areaId){
   const btn=document.getElementById(btnId);
   const dot=document.getElementById(dotId);
@@ -419,7 +462,7 @@ async function runGen(prompt,maxTokens,onSuccess,btnId,dotId,lbId,areaId){
     if(lb) lb.classList.remove('on');
   }
 }
-
+ 
 let toastTimer;
 function showToast(msg,ico='✅'){
   clearTimeout(toastTimer);
@@ -428,7 +471,7 @@ function showToast(msg,ico='✅'){
   document.getElementById('toast').classList.add('show');
   toastTimer=setTimeout(()=>document.getElementById('toast').classList.remove('show'),3500);
 }
-
+ 
 function sw(id,btn){
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
   document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('on'));
@@ -436,8 +479,9 @@ function sw(id,btn){
   btn.classList.add('on');
   const titles={t1:'문제생성 (숲한장)',t2:'PBL 실천 프로젝트',t3:'수업안 + 생기부 초안',t4:'에코-셰어링'};
   document.getElementById('topbar-title').textContent='숲잇다 — '+(titles[id]||'');
+  if(id==='t3') updateCtxBanner(); // 탭3 진입 시 컨텍스트 배너 갱신
 }
-
+ 
 function onGC(px){
   const grade=document.getElementById(px+'-grade').value;
   const data=GD[grade];if(!data)return;
@@ -451,7 +495,7 @@ function onGC(px){
   }
   if(px==='l') updateEco();
 }
-
+ 
 function updateEco(){
   const topic=document.getElementById('l-topic')?.value||'';
   const grade=document.getElementById('l-grade')?.value||'';
@@ -461,14 +505,15 @@ function updateEco(){
   document.getElementById('eco-title').textContent=eco.t;
   document.getElementById('eco-replace').textContent=eco.r;
 }
-
+ 
 document.addEventListener('DOMContentLoaded',()=>{onGC('q');onGC('p');onGC('l');});
-
+ 
 let lastKW='',lastGR='';
-
+ 
 function goPBL(){
   const km={'산불 및 산림보존':'산불 예방 캠페인','폭염과 기후위기':'학교 에너지 절약','사과 재배지 변화':'경북 사과밭 살리기','멸종위기종과 서식지':'A지역 멸종위기종 캠페인','낙동강 수생태계':'낙동강 수생태계 보호','재활용과 탄소저감':'분리배출과 탄소저감'};
   const mapped=km[lastKW]||'분리배출과 탄소저감';
+  CTX.pblTheme=mapped; // PBL 테마 CTX 저장
   document.getElementById('p-grade').value=lastGR;
   document.getElementById('p-theme').value=mapped;
   onGC('p');
@@ -477,9 +522,9 @@ function goPBL(){
   document.querySelectorAll('.nav-item').forEach((b,i)=>{if(i===1)sw('t2',b);});
   window.scrollTo({top:0,behavior:'smooth'});
 }
-
+ 
 function fmt(t){return t.replace(/^### (.+)$/gm,'<h3>$1</h3>').replace(/^## (.+)$/gm,'<h3>$1</h3>').replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');}
-
+ 
 function showResult(renderId,text,extra,dotId){
   const el=document.getElementById(renderId);
   el.innerHTML=fmt(text);el.style.display='block';
@@ -510,9 +555,9 @@ function showResult(renderId,text,extra,dotId){
     }
   }
 }
-
+ 
 function copyRendered(id){const text=document.getElementById(id).innerText||'';if(!text){showToast('렌더링된 내용이 없습니다','⚠️');return;}navigator.clipboard.writeText(text).then(()=>showToast('✅ 복사됐습니다!','✅'));}
-
+ 
 function clearResult(areaId,renderId,dotId,lbId){
   document.getElementById(areaId).style.display='none';
   const r=document.getElementById(renderId);r.innerHTML='';r.style.display='none';
@@ -520,21 +565,45 @@ function clearResult(areaId,renderId,dotId,lbId){
   if(renderId==='r3')document.getElementById('grade-wrap').style.display='none';
   if(renderId==='r2')document.getElementById('co2-box').classList.remove('on');
 }
-
+ 
 function gen1(){
   const grade=document.getElementById('q-grade').value;
   const subLabel=document.getElementById('q-subject').options[document.getElementById('q-subject').selectedIndex]?.text||'';
   const kw=document.getElementById('q-keyword').value;
   const data=GD[grade];
-  lastKW=kw;lastGR=grade;
-  const p=`${SYS}\n\n숲잇다: [${grade} / ${subLabel}] [${kw}] SSIBL 1단계 탐구 문제.\n★ 교육과정: ${data.ach}\n★ 주의: ${data.note}\n★ 원칙: 경북 지역 공공데이터만. 학교명→A초등학교. 4개 섹션 완성.\n\n### 🌱 생각 깨우기\n(${grade} 학생이 경북 일상에서 느낄 수 있는 도입 질문, 2~3줄)\n\n### 📊 탐구 문제\n(경북 실제 수치 포함, 3~4줄)\n\n### ✅ 정답과 해설\n(${grade} 눈높이 풀이, 3줄 이내)\n\n### 💭 다음 실천으로\n(경북에서 ${grade} 학생이 직접 할 수 있는 실천 한 문장)`;
-  runGen(p,700,(result)=>showResult('r1',result,'','dot1'),'btn1','dot1','lb1','ra1');
+  lastKW=kw; lastGR=grade;
+ 
+  // 전역 컨텍스트 저장 (탭3 자동 연결용)
+  CTX.grade=grade; CTX.subLabel=subLabel; CTX.kw=kw; CTX.ach=data.ach; CTX.note=data.note;
+  updateCtxBanner();
+ 
+  const p=`${SYS}\n\n숲잇다: [${grade} / ${subLabel}] [${kw}] SSIBL 1단계 탐구 문제.
+★ 교육과정: ${data.ach}
+★ 주의: ${data.note}
+★ 원칙: 경북 지역 공공데이터만. 학교명→A초등학교.
+★ 중요: 아래 4개 섹션을 반드시 모두 완성할 것. 마지막 섹션(💭 다음 실천으로)이 잘리지 않게 끝까지 출력.
+ 
+### 🌱 생각 깨우기
+(${grade} 학생이 경북 일상에서 느낄 수 있는 도입 질문, 2~3줄)
+ 
+### 📊 탐구 문제
+(경북 실제 수치 포함, 3~4줄)
+ 
+### ✅ 정답과 해설
+(${grade} 눈높이 풀이, 3줄 이내. 짧게 완성)
+ 
+### 💭 다음 실천으로
+(경북에서 ${grade} 학생이 직접 할 수 있는 실천 한 문장. 반드시 출력)`;
+  runGen(p,900,(result)=>showResult('r1',result,'','dot1'),'btn1','dot1','lb1','ra1');
 }
-
+ 
 function gen2(){
   const grade=document.getElementById('p-grade').value;
   const weeks=document.getElementById('p-weeks').value;
   const theme=document.getElementById('p-theme').value;
+  // PBL 컨텍스트 저장
+  CTX.pblTheme=theme; CTX.pblWeeks=weeks;
+  updateCtxBanner();
   const stu=parseFloat(document.getElementById('c-stu').value)||26;
   const rec=parseFloat(document.getElementById('c-rec').value)||2.5;
   const wks=parseFloat(weeks)||4;
@@ -545,23 +614,50 @@ function gen2(){
   const p=`${SYS}\n\n숲잇다: A초등학교 [${grade}] ${stu}명, [${weeks}짜리 ${theme}] PBL.\n★ 성취기준: ${data.ach}\n★ 실천미션: ${ml}\n★ 탄소 국가표준: ${stu}명×${wks}주×${rec}kg×0.44(환경부 LCA) = CO₂ ${co2}kg = 소나무 ${trees}그루(국립산림과학원 10.8kg/그루)\n★ 원칙: 경북 공공데이터. 학교명→A초등학교. 5개 섹션 완성.\n\n### 🎯 프로젝트 개요\n### 📅 주차별 활동 (${wks}주)\n### 🌿 탄소저감 계산 (국가표준 수치 기반)\n### 🏛️ 지역 연계 (PBE 3단계)\n(지역 환경기관·환경교육센터·수목원 건의·발표)\n### 📝 평가`;
   runGen(p,1000,(result)=>showResult('r2',result,'co2','dot2'),'btn2','dot2','lb2','ra2');
 }
-
+ 
 function gen3a(){
   lastGen3=gen3a;
-  const grade=document.getElementById('l-grade').value;
-  const subLabel=document.getElementById('l-subject').options[document.getElementById('l-subject').selectedIndex]?.text||'';
-  const topic=document.getElementById('l-topic').value;
-  const model=document.getElementById('l-model').value;
-  const sess=selectedSession;
-  const min=sess===1?40:80;
-  const data=GD[grade];
-  const eco=ECO_MAP[topic]||{t:'기후변화 대응 교과연계 생태전환교육 (keep.go.kr)',r:'전국 평균 → 경북 실수치로 대체'};
-  const ml=data.missions.slice(0,2).map(m=>`${m.s} [${m.n}] ${m.d}`).join('\n');
-  const intro=sess===1?'8분':'15분',body=sess===1?'25분':'50분',close=sess===1?'7분':'15분';
-  const p=`${SYS}\n\n숲잇다: 경북(A지역) [${grade}] [${subLabel}] [${topic}] ${sess}차시(${min}분) 수업안. 모형: ${model}\n★ 교육과정: ${data.ach}\n★ 주의: ${data.note}\n★ 참조자료: [${eco.t}] → ${eco.r}\n★ 탄소 국가표준: 소나무 10.8kg/그루/년(국립산림과학원), 분리배출 0.44kg CO2/kg(환경부 LCA)\n★ 원칙: 경북 공공데이터. 학교명→A초등학교. ${sess===2?'2차시 분량 상세히(활동 4~5가지 포함)':'간결하게(활동 2~3가지)'}.\n★ 실천미션: ${ml}\n5개 섹션 완성.\n\n### 📌 수업 개요\n(학년, 교과, 성취기준 코드, 핵심역량, ${sess}차시 ${min}분)\n\n### 🔍 도입 (${intro})\n(PBE 1단계: 경북 실제 데이터·수치로 흥미 유발)\n\n### 🔬 전개 (${body})\n(SSIBL 1→2단계: 경북 데이터 탐구→원인·해결책. ${sess===2?'활동 4~5가지 상세 기술':'활동 2~3가지'})\n\n### 🌱 정리·실천 (${close})\n(SSIBL 3단계: 실천미션 선택 + 지역 기관 연계)\n\n### 📋 준비물 및 유의사항`;
-  runGen(p,sess===1?1200:1800,(result)=>showResult('r3',result,'','dot3'),'btn3a','dot3','lb3','ra3');
+  // CTX에서 앞 단계 값 우선 로드, 없으면 탭3 선택값 사용
+  const grade = (CTX.grade && GD[CTX.grade]) ? CTX.grade : document.getElementById('l-grade').value;
+  const subLabel = CTX.subLabel || document.getElementById('l-subject').options[document.getElementById('l-subject').selectedIndex]?.text||'';
+  const topic = document.getElementById('l-topic').value;
+  const model = document.getElementById('l-model').value;
+  const sess = selectedSession;
+  const min = sess===1?40:80;
+  const data = GD[grade];
+  const eco = ECO_MAP[topic]||{t:'기후변화 대응 교과연계 생태전환교육 (keep.go.kr)',r:'전국 평균 → 경북 실수치로 대체'};
+  const ml = data.missions.slice(0,2).map(m=>`${m.s} [${m.n}] ${m.d}`).join('\n');
+  const intro=sess===1?'8분':'15분', body=sess===1?'25분':'50분', close=sess===1?'7분':'15분';
+  const ctxLine = CTX.kw ? `★ 앞 단계 연결: 탐구 키워드 [${CTX.kw}] / PBL 테마 [${CTX.pblTheme||'미설정'}]` : '';
+  const p=`${SYS}
+ 
+숲잇다: 경북(A지역) [${grade}] [${subLabel}] [${topic}] ${sess}차시(${min}분) 수업안. 모형: ${model}
+★ 교육과정: ${data.ach}
+★ 주의: ${data.note}
+★ 참조자료: [${eco.t}] → ${eco.r}
+★ 탄소 국가표준: 소나무 10.8kg/그루/년(국립산림과학원), 분리배출 0.44kg CO2/kg(환경부 LCA)
+★ 원칙: 경북 공공데이터. 학교명→A초등학교. ${sess===2?'2차시 분량 상세히(활동 4~5가지)':'간결하게(활동 2~3가지)'}.
+★ 실천미션: ${ml}
+${ctxLine}
+★ 중요: 5개 섹션을 모두 완성. 📋 준비물 섹션이 잘리지 않게 끝까지 출력할 것.
+ 
+### 📌 수업 개요
+(학년, 교과, 성취기준 코드, 핵심역량, ${sess}차시 ${min}분)
+ 
+### 🔍 도입 (${intro})
+(PBE 1단계: 경북 실제 데이터·수치로 흥미 유발)
+ 
+### 🔬 전개 (${body})
+(SSIBL 1→2단계: 경북 데이터 탐구→원인·해결책. ${sess===2?'활동 4~5가지 상세 기술':'활동 2~3가지'})
+ 
+### 🌱 정리·실천 (${close})
+(SSIBL 3단계: 실천미션 선택 + 지역 기관 연계)
+ 
+### 📋 준비물 및 유의사항
+(교사/학생 준비물, 안전 유의사항 — 간결하게 완성)`;
+  runGen(p,sess===1?1500:2200,(result)=>showResult('r3',result,'','dot3'),'btn3a','dot3','lb3','ra3');
 }
-
+ 
 function gen3b(){
   lastGen3=gen3b;
   const grade=document.getElementById('l-grade').value;
@@ -569,7 +665,7 @@ function gen3b(){
   const p=`${SYS}\n\n숲잇다: 경북(A지역) [${grade}] [${topic}] 수업 학생의 학교생활기록부 행동특성 및 종합의견 초안.\n★ 경북 실제 데이터(낙동강·멸종위기종·사과재배지·A지역 산불) 분석 활동 구체적 언급.\n★ 학교명 A초등학교, 학생 이름 OOO. 전문적 교사 문체.\n★ 핵심: 상·중·하 3개를 모두 완성할 것. 각 수준 80~100자. 내용이 잘리지 않게 3개 전부 완전한 문장으로.\n\n### 상 (심화 수준)\n(자기주도적 탐구와 지역 연계 실천 강조, 80~100자 완전한 문장)\n\n### 중 (기본 수준)\n(탐구 참여와 개념 이해 중심, 80~100자 완전한 문장)\n\n### 하 (지원 수준)\n(참여 과정과 성장 가능성 중심, 80~100자 완전한 문장)`;
   runGen(p,1500,(result)=>showResult('r3',result,'grade','dot3'),'btn3a','dot3','lb3','ra3');
 }
-
+ 
 function gen3c(){
   lastGen3=gen3c;
   const grade=document.getElementById('l-grade').value;
