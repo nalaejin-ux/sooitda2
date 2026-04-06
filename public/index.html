@@ -5,238 +5,240 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>숲잇다 — 경북 환경교육 AI 수업도구</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=DM+Mono:ital,wght@0,400;0,500;1,400&display=swap');
- 
-  :root {
-    --forest:   #17362A;
-    --deep:     #0D2219;
-    --green:    #4A9E73;
-    --mint:     #86C9A4;
-    --gold:     #D4A843;
-    --coral:    #E87F6A;
-    --cream:    #F5F0E8;
-    --white:    #FFFFFF;
-    --dim:      rgba(255,255,255,0.5);
-    --dim2:     rgba(255,255,255,0.08);
-  }
-  * { margin:0; padding:0; box-sizing:border-box; }
-  body { font-family:'Noto Sans KR',sans-serif; background:var(--forest); color:var(--white); min-height:100vh; }
- 
-  /* HEADER */
-  header {
-    position:sticky; top:0; z-index:100;
-    background:rgba(13,34,25,0.95); backdrop-filter:blur(14px);
-    border-bottom:1px solid rgba(74,158,115,0.2);
-    padding:10px 28px;
-    display:flex; align-items:center; justify-content:space-between; gap:16px;
-  }
-  .logo { display:flex; align-items:center; gap:10px; }
-  .logo-icon { width:34px; height:34px; background:var(--green); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:17px; }
-  .logo-text { font-size:19px; font-weight:700; }
-  .logo-text em { color:var(--mint); font-style:normal; }
-  .data-count {
-    font-size:11px; padding:3px 10px; border-radius:20px;
-    background:rgba(74,158,115,0.12); border:1px solid rgba(74,158,115,0.25);
-    color:var(--mint);
-  }
-  .api-status { display:flex; align-items:center; gap:6px; font-size:11px; color:var(--dim); margin-left:auto; }
-  .dot { width:6px; height:6px; border-radius:50%; background:var(--green); animation:pulse 2s infinite; }
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
- 
-  /* CONTEXT BAR */
-  .ctx {
-    background:var(--deep); border-bottom:1px solid rgba(74,158,115,0.12);
-    padding:12px 28px; display:flex; align-items:center; gap:16px; flex-wrap:wrap;
-  }
-  .ctx-lbl { font-size:10px; color:var(--dim); text-transform:uppercase; letter-spacing:1.2px; }
-  .ctx-sel {
-    background:rgba(255,255,255,0.06); border:1px solid rgba(74,158,115,0.28);
-    color:var(--white); border-radius:6px; padding:6px 10px;
-    font-size:12px; font-family:inherit; cursor:pointer;
-  }
-  .ctx-sel:focus { outline:none; border-color:var(--green); }
-  .ctx-sel option { background:var(--deep); }
-  .ctx-div { width:1px; height:24px; background:rgba(255,255,255,0.08); }
- 
-  /* TABS */
-  .tabs { display:flex; gap:2px; padding:16px 28px 0; border-bottom:1px solid rgba(255,255,255,0.07); }
-  .tab {
-    padding:9px 18px; border-radius:7px 7px 0 0; font-size:12px; font-weight:500;
-    border:none; background:transparent; color:var(--dim); cursor:pointer;
-    transition:all .18s; position:relative; font-family:inherit;
-  }
-  .tab.active { color:var(--white); background:rgba(74,158,115,0.1); }
-  .tab.active::after { content:''; position:absolute; bottom:-1px; left:0; right:0; height:2px; background:var(--green); }
-  .tab:hover:not(.active) { color:var(--mint); }
-  .panel { display:none; }
-  .panel.active { display:block; }
- 
-  /* LAYOUT */
-  .layout { display:grid; grid-template-columns:1fr 320px; min-height:calc(100vh - 135px); }
-  .main { padding:24px 28px; border-right:1px solid rgba(255,255,255,0.06); }
-  .side { padding:20px 18px; overflow-y:auto; max-height:calc(100vh - 135px); background:rgba(0,0,0,0.12); }
- 
-  /* SECTION LABEL */
-  .slbl {
-    font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:1.5px;
-    color:var(--green); margin-bottom:14px;
-    display:flex; align-items:center; gap:8px;
-  }
-  .slbl::after { content:''; flex:1; height:1px; background:rgba(74,158,115,0.18); }
- 
-  /* KEYWORD BUTTONS */
-  .kw-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:20px; }
-  .kw-btn {
-    padding:11px 8px; border-radius:9px; border:1px solid rgba(255,255,255,0.09);
-    background:rgba(255,255,255,0.03); color:var(--dim);
-    font-size:11px; font-weight:500; cursor:pointer; text-align:center;
-    transition:all .18s; font-family:inherit; line-height:1.4;
-  }
-  .kw-btn .ki { font-size:18px; display:block; margin-bottom:3px; }
-  .kw-btn:hover { border-color:var(--green); color:var(--mint); background:rgba(74,158,115,0.07); }
-  .kw-btn.on { border-color:var(--green); background:rgba(74,158,115,0.14); color:var(--white); }
-  /* new badge */
-  .kw-btn .new { font-size:8px; background:var(--gold); color:#000; border-radius:3px; padding:1px 4px; vertical-align:super; }
- 
-  /* GEN BUTTON */
-  .gen {
-    width:100%; padding:13px; background:var(--green); color:var(--white);
-    border:none; border-radius:9px; font-size:13px; font-weight:700; font-family:inherit;
-    cursor:pointer; transition:all .18s;
-    display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:20px;
-  }
-  .gen:hover { background:#3d8a62; transform:translateY(-1px); }
-  .gen:disabled { background:rgba(74,158,115,0.28); cursor:not-allowed; transform:none; }
-  .spinner { width:14px; height:14px; border:2px solid rgba(255,255,255,0.3); border-top-color:#fff; border-radius:50%; animation:spin .65s linear infinite; display:none; }
-  .gen.loading .spinner { display:block; }
-  @keyframes spin { to{transform:rotate(360deg)} }
- 
-  /* OUTPUT */
-  .outbox {
-    background:rgba(0,0,0,0.18); border:1px solid rgba(255,255,255,0.07);
-    border-radius:11px; padding:18px; min-height:160px;
-    font-size:13px; line-height:1.85; color:rgba(255,255,255,0.88);
-    position:relative; transition:border-color .25s;
-  }
-  .outbox.lit { border-color:rgba(74,158,115,0.22); }
-  .placeholder { color:var(--dim); font-size:12px; display:flex; flex-direction:column; align-items:center; justify-content:center; height:130px; gap:7px; }
-  .copybtn {
-    position:absolute; top:10px; right:10px;
-    background:rgba(74,158,115,0.13); border:1px solid rgba(74,158,115,0.28); color:var(--mint);
-    border-radius:5px; padding:3px 9px; font-size:10px; cursor:pointer; font-family:inherit;
-    display:none; transition:all .18s;
-  }
-  .copybtn.show { display:block; }
-  .copybtn:hover { background:rgba(74,158,115,0.24); }
- 
-  /* SIDE CARDS */
-  .card { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.07); border-radius:9px; padding:13px; margin-bottom:11px; }
-  .card-title { font-size:10px; font-weight:600; color:var(--gold); text-transform:uppercase; letter-spacing:.9px; margin-bottom:9px; display:flex; align-items:center; gap:5px; }
-  .srow { display:flex; justify-content:space-between; align-items:baseline; padding:4px 0; border-bottom:1px solid rgba(255,255,255,0.04); font-size:11px; }
-  .srow:last-child { border-bottom:none; }
-  .slb { color:var(--dim); }
-  .svl { color:var(--mint); font-weight:600; font-family:'DM Mono',monospace; font-size:10px; }
-  .svl.hi { color:var(--gold); }
- 
-  /* DUAL CHART — 기온 + 전력 */
-  .dual-chart { margin:10px 0; }
-  .dc-row { display:flex; align-items:center; gap:5px; margin-bottom:4px; }
-  .dc-yr { font-size:10px; color:var(--dim); width:30px; flex-shrink:0; }
-  .dc-bars { flex:1; display:flex; gap:2px; }
-  .dc-bar { height:9px; border-radius:2px; transition:width 1s ease; }
-  .dc-vals { font-size:9px; color:var(--dim); width:56px; text-align:right; font-family:'DM Mono',monospace; }
-  .dc-legend { display:flex; gap:10px; margin-bottom:6px; font-size:9px; color:var(--dim); }
-  .dc-leg { display:flex; align-items:center; gap:3px; }
-  .dc-dot { width:8px; height:8px; border-radius:2px; }
- 
-  /* CORRELATION BOX */
-  .corr-box {
-    background:linear-gradient(135deg,rgba(212,168,67,.1),rgba(74,158,115,.08));
-    border:1px solid rgba(212,168,67,.22); border-radius:9px; padding:12px; margin-bottom:11px;
-  }
-  .corr-title { font-size:10px; color:var(--gold); font-weight:600; margin-bottom:7px; }
-  .corr-big { font-size:20px; font-weight:900; color:var(--gold); font-family:'DM Mono',monospace; }
-  .corr-sub { font-size:9px; color:var(--dim); margin-top:2px; }
-  .corr-formula { margin-top:8px; padding:7px 10px; background:rgba(0,0,0,0.2); border-radius:6px; font-size:10px; color:var(--mint); font-family:'DM Mono',monospace; }
- 
-  /* FLOWER */
-  .flower-item { display:flex; gap:6px; padding:4px 0; border-bottom:1px solid rgba(255,255,255,0.04); font-size:10px; }
-  .flower-item:last-child { border-bottom:none; }
-  .fm { color:var(--green); font-weight:600; width:30px; flex-shrink:0; padding-top:1px; }
-  .fp { color:var(--dim); line-height:1.5; }
-  .fp .hl { color:var(--mint); }
-  .tags { display:flex; flex-wrap:wrap; gap:3px; margin-top:5px; }
-  .tag { font-size:9px; padding:2px 6px; border-radius:20px; background:rgba(74,158,115,0.1); border:1px solid rgba(74,158,115,.22); color:var(--mint); }
-  .tag.end { background:rgba(212,168,67,.1); border-color:rgba(212,168,67,.25); color:var(--gold); }
- 
-  /* PBL */
-  .pbl-grid { display:grid; gap:10px; }
-  .pbl { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,.08); border-radius:11px; padding:15px; transition:border-color .18s; }
-  .pbl:hover { border-color:rgba(74,158,115,.28); }
-  .pbl-grade { font-size:10px; font-weight:700; color:var(--gold); margin-bottom:5px; display:flex; align-items:center; gap:5px; }
-  .pbl-title { font-size:13px; font-weight:600; margin-bottom:5px; }
-  .pbl-desc { font-size:11px; color:var(--dim); line-height:1.65; }
-  .pbl-co2 { margin-top:9px; padding:7px 10px; background:rgba(74,158,115,.09); border-radius:6px; font-size:10px; color:var(--mint); }
-  .pbl-co2 strong { color:var(--white); }
- 
-  /* CALC */
-  .calc { display:grid; gap:11px; }
-  .fg label { display:block; font-size:10px; color:var(--dim); margin-bottom:5px; }
-  .fg input, .fg select {
-    width:100%; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,.09);
-    border-radius:7px; color:var(--white); padding:8px 10px; font-size:12px; font-family:inherit;
-  }
-  .fg input:focus, .fg select:focus { outline:none; border-color:var(--green); }
-  .calc-result { background:rgba(74,158,115,.09); border-radius:9px; padding:14px; text-align:center; }
-  .calc-num { font-size:26px; font-weight:900; color:var(--gold); font-family:'DM Mono',monospace; }
-  .calc-pine { font-size:11px; color:var(--mint); margin-top:6px; }
- 
-  /* RECORD */
-  .rec-form { display:grid; gap:13px; }
-  .rfg label { font-size:10px; color:var(--dim); display:block; margin-bottom:5px; }
-  .rfg input, .rfg select, .rfg textarea {
-    width:100%; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.09);
-    border-radius:7px; color:var(--white); padding:9px 11px; font-size:12px; font-family:inherit;
-  }
-  .rfg textarea { resize:vertical; min-height:90px; }
-  .rfg input:focus, .rfg textarea:focus { outline:none; border-color:var(--green); }
-  .grb { padding:11px; background:rgba(74,158,115,.18); border:1px solid var(--green); color:var(--white); border-radius:8px; font-family:inherit; font-size:12px; font-weight:600; cursor:pointer; width:100%; transition:all .18s; }
-  .grb:hover { background:rgba(74,158,115,.3); }
-  .lvl-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:7px; }
-  .lvl { background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.08); border-radius:7px; padding:9px; }
-  .lvl label { font-size:10px; font-weight:600; display:block; margin-bottom:4px; }
-  .lvl.hi label { color:#7BC8A4; }
-  .lvl.md label { color:var(--gold); }
-  .lvl.lo label { color:var(--coral); }
-  .lvl textarea { font-size:10px; min-height:75px; border:none; background:transparent; color:rgba(255,255,255,.75); width:100%; resize:vertical; font-family:inherit; padding:0; }
- 
-  /* ACHIEVE TABLE */
-  .ach-row { display:flex; gap:8px; align-items:flex-start; padding:5px 0; border-bottom:1px solid rgba(255,255,255,.04); font-size:10px; }
-  .ach-row:last-child { border-bottom:none; }
-  .ach-grade { color:var(--mint); font-weight:600; flex-shrink:0; width:55px; }
-  .ach-text { color:var(--dim); line-height:1.5; }
- 
-  @media(max-width:768px){
-    .layout { grid-template-columns:1fr; }
-    .side { max-height:none; }
-    .kw-grid { grid-template-columns:repeat(2,1fr); }
-  }
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;900&family=DM+Mono:wght@400;500&display=swap');
+:root{
+  --forest:#17362A;--deep:#0D2219;--green:#4A9E73;--mint:#86C9A4;
+  --gold:#D4A843;--coral:#E87F6A;--teal:#3D8FA8;--white:#fff;
+  --dim:rgba(255,255,255,.52);--dim2:rgba(255,255,255,.08);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--forest);color:var(--white);min-height:100vh;font-size:15px}
+
+/* ─── HEADER ─── */
+header{position:sticky;top:0;z-index:200;background:rgba(13,34,25,.97);backdrop-filter:blur(16px);border-bottom:1px solid rgba(74,158,115,.22);padding:10px 32px;display:flex;align-items:center;gap:16px}
+.logo-img{height:40px;width:auto}
+.data-badge{font-size:13px;padding:5px 14px;border-radius:20px;background:rgba(74,158,115,.14);border:1px solid rgba(74,158,115,.3);color:var(--mint);cursor:pointer;transition:all .2s}
+.data-badge:hover{background:rgba(74,158,115,.28)}
+.api-pill{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--dim);margin-left:auto}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* ─── MODAL ─── */
+.modal-overlay{position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.65);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.open{display:flex}
+.modal-box{background:var(--deep);border:1px solid rgba(74,158,115,.3);border-radius:16px;width:100%;max-width:680px;max-height:80vh;overflow-y:auto;padding:32px}
+.modal-close{float:right;background:rgba(255,255,255,.1);border:none;color:var(--white);border-radius:6px;padding:6px 14px;cursor:pointer;font-size:14px;font-family:inherit}
+.modal-close:hover{background:rgba(255,255,255,.2)}
+.dtable{width:100%;border-collapse:collapse;font-size:14px}
+.dtable th{text-align:left;padding:9px 10px;font-size:12px;color:var(--gold);text-transform:uppercase;letter-spacing:.8px;border-bottom:1px solid rgba(74,158,115,.2)}
+.dtable td{padding:9px 10px;border-bottom:1px solid rgba(255,255,255,.05);line-height:1.5;vertical-align:top}
+.dtable tr:last-child td{border-bottom:none}
+.dtable td:first-child{color:var(--mint);font-weight:600;font-size:12px;white-space:nowrap}
+.nbadge{font-size:10px;background:var(--gold);color:#000;border-radius:3px;padding:1px 5px;font-weight:700;margin-left:4px}
+.ebadge{font-size:10px;background:rgba(61,143,168,.25);border:1px solid var(--teal);color:var(--teal);border-radius:3px;padding:1px 5px;margin-left:4px}
+
+/* ─── CTX BAR ─── */
+.ctx{background:var(--deep);border-bottom:1px solid rgba(74,158,115,.12);padding:14px 32px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.ctx-lbl{font-size:12px;color:var(--dim);text-transform:uppercase;letter-spacing:1.2px}
+.ctx-sel{background:rgba(255,255,255,.07);border:1px solid rgba(74,158,115,.3);color:var(--white);border-radius:7px;padding:8px 12px;font-size:14px;font-family:inherit;cursor:pointer;min-width:160px}
+.ctx-sel:focus{outline:none;border-color:var(--green)}
+.ctx-sel option{background:var(--deep)}
+.ctx-div{width:1px;height:28px;background:rgba(255,255,255,.1)}
+
+/* ─── STATE BANNER ─── */
+.state-banner{background:rgba(74,158,115,.08);border-bottom:1px solid rgba(74,158,115,.15);padding:10px 32px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;font-size:13px;min-height:44px}
+.sb-label{color:var(--dim)}
+.sb-chip{background:rgba(74,158,115,.15);border:1px solid rgba(74,158,115,.3);color:var(--mint);border-radius:20px;padding:3px 12px;font-size:13px;font-weight:600}
+.sb-status{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:13px;color:var(--dim)}
+.sb-step{padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid rgba(255,255,255,.1);color:var(--dim)}
+.sb-step.done{background:rgba(74,158,115,.2);border-color:var(--green);color:var(--white)}
+.sb-step.active{background:var(--green);border-color:var(--green);color:var(--white)}
+
+/* ─── TABS ─── */
+.tabs{display:flex;gap:3px;padding:16px 32px 0;border-bottom:1px solid rgba(255,255,255,.07)}
+.tab{padding:11px 22px;border-radius:8px 8px 0 0;font-size:14px;font-weight:500;border:none;background:transparent;color:var(--dim);cursor:pointer;transition:all .18s;position:relative;font-family:inherit}
+.tab.on{color:var(--white);background:rgba(74,158,115,.1)}
+.tab.on::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:2px;background:var(--green)}
+.tab:hover:not(.on){color:var(--mint)}
+.tab .tab-check{display:none;font-size:11px;margin-left:5px;color:var(--green)}
+.tab.done .tab-check{display:inline}
+.panel{display:none}.panel.on{display:block}
+
+/* ─── LAYOUT ─── */
+.layout{display:grid;grid-template-columns:1fr 380px;min-height:calc(100vh - 175px)}
+.main{padding:26px 32px;border-right:1px solid rgba(255,255,255,.06)}
+.side{background:rgba(0,0,0,.13);overflow-y:auto;max-height:calc(100vh - 175px)}
+.side-inner{padding:22px 20px}
+
+.slbl{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--green);margin-bottom:16px;display:flex;align-items:center;gap:10px}
+.slbl::after{content:'';flex:1;height:1px;background:rgba(74,158,115,.18)}
+
+/* ─── KEYWORD GRID ─── */
+.kw-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:22px}
+.kw-btn{padding:14px 10px;border-radius:10px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);color:var(--dim);font-size:14px;font-weight:500;cursor:pointer;text-align:center;transition:all .18s;font-family:inherit;line-height:1.4}
+.kw-btn .ki{font-size:22px;display:block;margin-bottom:4px}
+.kw-btn:hover{border-color:var(--green);color:var(--mint);background:rgba(74,158,115,.08)}
+.kw-btn.on{border-color:var(--green);background:rgba(74,158,115,.15);color:var(--white)}
+.nbadge2{font-size:10px;background:var(--gold);color:#000;border-radius:3px;padding:1px 4px;font-weight:700}
+
+/* ─── BUTTONS ─── */
+.gen-btn{width:100%;padding:15px;background:var(--green);color:var(--white);border:none;border-radius:10px;font-size:16px;font-weight:700;font-family:inherit;cursor:pointer;transition:all .18s;display:flex;align-items:center;justify-content:center;gap:9px;margin-bottom:22px}
+.gen-btn:hover{background:#3d8a62;transform:translateY(-1px)}
+.gen-btn:disabled{background:rgba(74,158,115,.3);cursor:not-allowed;transform:none}
+.next-btn{width:100%;padding:13px;background:rgba(212,168,67,.15);border:1px solid var(--gold);color:var(--gold);border-radius:10px;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;transition:all .18s;display:none;margin-top:12px;text-align:center}
+.next-btn:hover{background:rgba(212,168,67,.3)}
+.next-btn.show{display:block}
+.regen-btn{padding:9px 18px;background:rgba(74,158,115,.12);border:1px solid rgba(74,158,115,.3);color:var(--mint);border-radius:8px;font-size:13px;font-family:inherit;cursor:pointer;transition:all .18s;margin-bottom:16px}
+.regen-btn:hover{background:rgba(74,158,115,.25)}
+.spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .65s linear infinite;display:none}
+.gen-btn.loading .spinner{display:block}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ─── OUTPUT ─── */
+.outbox{background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:22px;min-height:180px;font-size:15px;line-height:2;color:rgba(255,255,255,.9);position:relative;transition:border-color .25s}
+.outbox.lit{border-color:rgba(74,158,115,.25)}
+.placeholder{color:var(--dim);font-size:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;height:150px;gap:8px;text-align:center}
+.copybtn{position:absolute;top:12px;right:12px;background:rgba(74,158,115,.14);border:1px solid rgba(74,158,115,.3);color:var(--mint);border-radius:6px;padding:5px 12px;font-size:13px;cursor:pointer;font-family:inherit;display:none;transition:all .18s}
+.copybtn.show{display:block}
+.copybtn:hover{background:rgba(74,158,115,.28)}
+
+/* ─── CONTEXT SUMMARY BOX (in panel 2,3) ─── */
+.ctx-summary{background:rgba(74,158,115,.07);border:1px solid rgba(74,158,115,.2);border-radius:10px;padding:14px 18px;margin-bottom:20px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.cs-label{font-size:12px;color:var(--dim)}
+.cs-val{font-size:14px;font-weight:600;color:var(--mint)}
+.cs-sep{color:var(--dim);font-size:16px}
+.cs-edit{margin-left:auto;font-size:13px;color:var(--dim);background:none;border:none;cursor:pointer;font-family:inherit;text-decoration:underline;color:var(--mint)}
+.cs-edit:hover{color:var(--white)}
+
+/* ─── PBL CARDS ─── */
+.pbl-dynamic{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);border-radius:12px;padding:20px;margin-bottom:14px}
+.pbl-grade{font-size:13px;font-weight:700;color:var(--gold);margin-bottom:8px}
+.pbl-title{font-size:16px;font-weight:600;margin-bottom:8px}
+.pbl-desc{font-size:14px;color:rgba(255,255,255,.7);line-height:1.75}
+.pbl-insight{margin-top:12px;padding:10px 14px;background:rgba(74,158,115,.1);border-radius:8px;font-size:14px;color:var(--mint)}
+.pbl-insight strong{color:var(--white)}
+
+/* ─── FORM ─── */
+.rec-form{display:grid;gap:14px}
+.fg label{display:block;font-size:14px;color:rgba(255,255,255,.75);margin-bottom:6px;font-weight:500}
+.fg input,.fg select,.fg textarea{width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:var(--white);padding:10px 13px;font-size:15px;font-family:inherit}
+.fg .auto-field{background:rgba(74,158,115,.08);border-color:rgba(74,158,115,.3);color:var(--mint)}
+.fg textarea{resize:vertical;min-height:95px}
+.fg input:focus,.fg textarea:focus,.fg select:focus{outline:none;border-color:var(--green)}
+.grb{padding:14px;background:var(--green);border:none;color:var(--white);border-radius:10px;font-family:inherit;font-size:16px;font-weight:700;cursor:pointer;width:100%;transition:all .18s}
+.grb:hover{background:#3d8a62;transform:translateY(-1px)}
+.lvl-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.lvl{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.09);border-radius:9px;padding:12px}
+.lvl label{font-size:14px;font-weight:600;display:block;margin-bottom:6px}
+.lvl.hi label{color:#7BC8A4}.lvl.md label{color:var(--gold)}.lvl.lo label{color:var(--coral)}
+.lvl textarea{font-size:12px;min-height:90px;border:none;background:transparent;color:rgba(255,255,255,.8);width:100%;resize:vertical;font-family:inherit;padding:0;line-height:1.6}
+
+/* ─── SIDE METRICS ─── */
+.side-title{font-size:16px;font-weight:700;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid rgba(74,158,115,.2)}
+.metrics-table{width:100%;border-collapse:collapse;margin-bottom:18px}
+.metrics-table thead th{font-size:12px;color:var(--gold);text-transform:uppercase;letter-spacing:.8px;padding:8px 10px;border-bottom:2px solid rgba(74,158,115,.25);text-align:left}
+.metrics-table tbody tr{border-bottom:1px solid rgba(255,255,255,.05)}
+.metrics-table tbody tr:hover{background:rgba(255,255,255,.04)}
+.metrics-table td{padding:10px 10px;vertical-align:middle;font-size:14px}
+.mt-icon{font-size:16px;width:28px;text-align:center}
+.mt-label{color:rgba(255,255,255,.78);line-height:1.4}
+.mt-src{font-size:11px;color:var(--dim);margin-top:2px;display:block}
+.mt-val{font-family:'DM Mono',monospace;font-size:13px;font-weight:600;white-space:nowrap;text-align:right}
+.mt-val.hi{color:var(--gold)}.mt-val.ok{color:var(--mint)}.mt-val.warn{color:var(--coral)}
+
+/* ─── CHARTS ─── */
+.chart-title{font-size:13px;color:var(--dim);margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.legend{display:flex;gap:12px;margin-bottom:8px}
+.leg{display:flex;align-items:center;gap:4px;font-size:12px;color:var(--dim)}
+.leg-dot{width:10px;height:10px;border-radius:2px}
+.dc-row{display:flex;align-items:center;gap:6px;margin-bottom:5px}
+.dc-yr{font-size:12px;color:var(--dim);width:32px;flex-shrink:0}
+.dc-bars{flex:1;display:flex;flex-direction:column;gap:2px}
+.dc-bar{height:8px;border-radius:2px;min-width:3px}
+.dc-val{font-size:11px;color:var(--dim);width:80px;text-align:right;font-family:'DM Mono',monospace}
+.mb-row{display:flex;align-items:center;gap:5px;margin-bottom:4px}
+.mb-lbl{font-size:12px;color:var(--dim);width:26px;flex-shrink:0}
+.mb-track{flex:1;height:10px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden}
+.mb-fill{height:100%;border-radius:3px}
+.mb-val{font-size:11px;width:34px;text-align:right;font-family:'DM Mono',monospace}
+.divider{height:1px;background:rgba(74,158,115,.15);margin:16px 0}
+.tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.tag{font-size:12px;padding:3px 9px;border-radius:20px;background:rgba(74,158,115,.1);border:1px solid rgba(74,158,115,.22);color:var(--mint)}
+.tag.end{background:rgba(212,168,67,.1);border-color:rgba(212,168,67,.25);color:var(--gold)}
+
+/* ─── PROGRESS BAR ─── */
+.progress-wrap{display:flex;gap:0;margin-bottom:20px}
+.progress-step{flex:1;text-align:center;position:relative}
+.progress-step::before{content:'';position:absolute;top:13px;left:50%;right:-50%;height:2px;background:rgba(255,255,255,.1);z-index:0}
+.progress-step:last-child::before{display:none}
+.ps-circle{width:28px;height:28px;border-radius:50%;border:2px solid rgba(255,255,255,.2);background:var(--deep);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;margin:0 auto 6px;position:relative;z-index:1;color:var(--dim)}
+.ps-circle.done{background:var(--green);border-color:var(--green);color:var(--white)}
+.ps-circle.active{background:rgba(74,158,115,.2);border-color:var(--green);color:var(--mint)}
+.ps-label{font-size:12px;color:var(--dim)}
+.ps-label.done{color:var(--mint)}.ps-label.active{color:var(--white)}
+
+/* ACH */
+.ach-row{display:flex;gap:10px;align-items:flex-start;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:14px}
+.ach-row:last-child{border-bottom:none}
+.ach-g{color:var(--mint);font-weight:600;flex-shrink:0;width:60px}
+.ach-t{color:rgba(255,255,255,.65);line-height:1.5}
+
+@media(max-width:900px){.layout{grid-template-columns:1fr}.side{max-height:none}.kw-grid{grid-template-columns:repeat(2,1fr)}}
 </style>
 </head>
 <body>
- 
-<header>
-  <div class="logo">
-    <div class="logo-icon">🌲</div>
-    <div class="logo-text">숲<em>잇</em>다</div>
-    <span class="data-count">공공데이터 19개</span>
+
+<!-- ─── DATA MODAL ─── -->
+<div class="modal-overlay" id="dataModal" onclick="if(event.target===this)closeModal()">
+<div class="modal-box">
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px">
+    <div>
+      <div style="font-size:20px;font-weight:700;margin-bottom:4px">활용 공공데이터 목록</div>
+      <div style="font-size:14px;color:var(--dim)">총 19개 출처 · 공공누리 1유형 · 상업적 이용 가능</div>
+    </div>
+    <button class="modal-close" onclick="closeModal()">✕ 닫기</button>
   </div>
-  <div class="api-status"><div class="dot"></div>Claude Sonnet API</div>
+  <table class="dtable">
+    <thead><tr><th style="width:30%">기관</th><th>데이터명</th></tr></thead>
+    <tbody>
+      <tr><td>기상청</td><td>경북 폭염일수 (2016-2025)</td></tr>
+      <tr><td>기상청 <span class="nbadge">NEW</span></td><td>경북 월별 평균기온 (2016-2025, 12개월 완성본)</td></tr>
+      <tr><td>산림청</td><td>2025년 산불통계연보</td></tr>
+      <tr><td>산림청</td><td>시도별 산불발생현황 (최근 10년)</td></tr>
+      <tr><td>환경부</td><td>하천 수생태계 건강성 평가</td></tr>
+      <tr><td>국립생태원</td><td>멸종위기 야생생물 등급별 종 목록</td></tr>
+      <tr><td>농촌진흥청</td><td>경북 사과 재배지 변동 예측</td></tr>
+      <tr><td>통계청(KOSIS)</td><td>경북 과실류 생산량</td></tr>
+      <tr><td>국립수목원</td><td>식물분포지역 정보 (경북 대표지역 449종)</td></tr>
+      <tr><td>통계청(KOSIS)</td><td>경북 강수일수·열대야일수</td></tr>
+      <tr><td>통계청(KOSIS)</td><td>전국 1인 폐기물 발생량</td></tr>
+      <tr><td>통계청(KOSIS)</td><td>전국 1인 오수 발생량</td></tr>
+      <tr><td>환경부 KOSIS</td><td>낙동강 수생태계 건강성 A등급 비율</td></tr>
+      <tr><td>농식품부</td><td>농촌진흥청 농식품 연간 구매변화</td></tr>
+      <tr><td>한국전력공사 <span class="nbadge">NEW</span></td><td>경북 교육서비스 월별 전력사용량 (2016-2025)</td></tr>
+      <tr><td>경상북도교육청 <span class="nbadge">NEW</span></td><td>2024 경북 초등학교별 에너지 사용량 (22개 시군구)</td></tr>
+      <tr><td>한국수목원정원관리원 <span class="nbadge">NEW</span></td><td>국립백두대간수목원 전시원 월별 개화식물목록 (394종)</td></tr>
+      <tr><td>교육부·학교알리미 <span class="ebadge">교육</span></td><td>경북 A초등학교 학생수 현황</td></tr>
+      <tr><td>교육부 NCIC <span class="ebadge">교육</span></td><td>2022 개정 교육과정 성취기준 (1~6학년 전 교과)</td></tr>
+    </tbody>
+  </table>
+  <div style="margin-top:16px;padding:12px 16px;background:rgba(74,158,115,.08);border-radius:8px;font-size:13px;color:var(--dim)">
+    ※ 모든 데이터는 공공누리 제1유형 라이선스를 준수합니다. 식별 가능한 학교명·지역명은 비식별화 처리됩니다.
+  </div>
+</div>
+</div>
+
+<!-- ─── HEADER ─── -->
+<header>
+  <img src="data:image/png;base64,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AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//2Q==" alt="숲잇다" class="logo-img">
+  <button class="data-badge" onclick="openModal()">공공데이터 19개 ▾</button>
+  <div class="api-pill"><div class="dot"></div>Claude Sonnet API</div>
 </header>
- 
+
+<!-- ─── CTX BAR ─── -->
 <div class="ctx">
   <span class="ctx-lbl">학년</span>
-  <select class="ctx-sel" id="grade">
+  <select class="ctx-sel" id="grade" onchange="onCtxChange()">
     <option value="1-2">1-2학년</option>
     <option value="3">3학년</option>
     <option value="4">4학년</option>
@@ -245,7 +247,7 @@
   </select>
   <div class="ctx-div"></div>
   <span class="ctx-lbl">교과</span>
-  <select class="ctx-sel" id="subject">
+  <select class="ctx-sel" id="subject" onchange="onCtxChange()">
     <option>과학(생태계)</option>
     <option>과학(날씨와 생활)</option>
     <option>과학(기후변화)</option>
@@ -256,7 +258,7 @@
   </select>
   <div class="ctx-div"></div>
   <span class="ctx-lbl">키워드</span>
-  <select class="ctx-sel" id="kw-sel">
+  <select class="ctx-sel" id="kw-sel" onchange="onKwSelChange()">
     <option value="산불">🔥 산불·산림</option>
     <option value="폭염기온">🌡 폭염·기온</option>
     <option value="에너지">⚡ 학교 에너지</option>
@@ -264,593 +266,873 @@
     <option value="식물">🌸 백두대간 식물</option>
     <option value="사과">🍎 사과재배지</option>
     <option value="탄소">♻️ 탄소저감</option>
+    <option value="멸종위기">🦅 멸종위기종</option>
   </select>
 </div>
- 
-<div class="tabs">
-  <button class="tab active" onclick="switchTab('p1',this)">① 탐구문제 (숲한장)</button>
-  <button class="tab" onclick="switchTab('p2',this)">② PBL 실천미션</button>
-  <button class="tab" onclick="switchTab('p3',this)">③ 수업안·생기부</button>
+
+<!-- ─── STATE BANNER ─── -->
+<div class="state-banner" id="state-banner">
+  <span class="sb-label">현재 선택:</span>
+  <span class="sb-chip" id="sb-grade">5학년</span>
+  <span style="color:var(--dim)">·</span>
+  <span class="sb-chip" id="sb-subject">과학(생태계)</span>
+  <span style="color:var(--dim)">·</span>
+  <span class="sb-chip" id="sb-kw">⚡ 학교 에너지</span>
+  <div class="sb-status">
+    <span class="sb-step" id="step1">① 탐구문제</span>
+    <span style="color:var(--dim)">→</span>
+    <span class="sb-step" id="step2">② PBL 미션</span>
+    <span style="color:var(--dim)">→</span>
+    <span class="sb-step" id="step3">③ 수업안·생기부</span>
+  </div>
 </div>
- 
-<!-- ═══ TAB 1: 탐구문제 ═══ -->
-<div class="panel active" id="p1">
+
+<!-- ─── TABS ─── -->
+<div class="tabs">
+  <button class="tab on" id="tab1" onclick="switchTab('p1',this,1)">① 탐구문제 (숲한장)<span class="tab-check">✓</span></button>
+  <button class="tab" id="tab2" onclick="switchTab('p2',this,2)">② PBL 실천미션<span class="tab-check">✓</span></button>
+  <button class="tab" id="tab3" onclick="switchTab('p3',this,3)">③ 수업안·생기부<span class="tab-check">✓</span></button>
+</div>
+
+<!-- ══════════════════ PANEL 1 ══════════════════ -->
+<div class="panel on" id="p1">
 <div class="layout">
 <div class="main">
   <div class="slbl">데이터 키워드 선택</div>
   <div class="kw-grid">
     <button class="kw-btn" onclick="selKw(this,'산불')"><span class="ki">🔥</span>산불·산림</button>
-    <button class="kw-btn" onclick="selKw(this,'폭염기온')"><span class="ki">🌡️</span>폭염·기온<span class="new">NEW</span></button>
+    <button class="kw-btn" onclick="selKw(this,'폭염기온')"><span class="ki">🌡️</span>폭염·기온</button>
     <button class="kw-btn on" onclick="selKw(this,'에너지')"><span class="ki">⚡</span>학교 에너지</button>
-    <button class="kw-btn" onclick="selKw(this,'기온전력')"><span class="ki">📈</span>기온-전력<span class="new">NEW</span></button>
+    <button class="kw-btn" onclick="selKw(this,'기온전력')"><span class="ki">📈</span>기온-전력 <span class="nbadge2">NEW</span></button>
     <button class="kw-btn" onclick="selKw(this,'식물')"><span class="ki">🌸</span>백두대간 식물</button>
     <button class="kw-btn" onclick="selKw(this,'사과')"><span class="ki">🍎</span>사과재배지</button>
     <button class="kw-btn" onclick="selKw(this,'탄소')"><span class="ki">♻️</span>탄소저감</button>
     <button class="kw-btn" onclick="selKw(this,'멸종위기')"><span class="ki">🦅</span>멸종위기종</button>
   </div>
- 
-  <button class="gen" onclick="genProblem()" id="gbtn">
+
+  <button class="gen-btn" onclick="genProblem()" id="gbtn">
     <div class="spinner" id="gsp"></div>
     <span id="gtxt">🌱 탐구문제 자동 생성</span>
   </button>
- 
+
   <div class="outbox" id="out1">
     <div class="placeholder">
-      <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" opacity=".4"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+      <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" opacity=".35"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
       학년·교과·키워드를 선택하고 생성 버튼을 누르세요
     </div>
-    <button class="copybtn" id="cp1" onclick="doCopy('out1')">복사</button>
+    <button class="copybtn" id="cp1" onclick="doCopy('out1')">📋 복사</button>
   </div>
+
+  <!-- 다음 단계 유도 버튼 -->
+  <button class="next-btn" id="next1" onclick="goTab2()">
+    ② PBL 실천미션 자동 생성하기 →
+  </button>
 </div>
- 
-<div class="side">
- 
-  <!-- 기온-전력 상관 (NEW) -->
-  <div class="corr-box">
-    <div class="corr-title">📈 기온 1℃ 상승 시 여름 전력 증가량</div>
-    <div class="corr-big">+4,650만 kWh</div>
-    <div class="corr-sub">경북 교육서비스 기준 (2016~2025년 회귀)</div>
-    <div class="corr-formula">기온: 25.6℃(2016) → 27.1℃(2025) = +1.5℃<br>전력: 309M → 381M kWh = +23.3%</div>
+
+<div class="side"><div class="side-inner">
+  <div class="side-title">📊 경북 환경·교육 데이터 현황</div>
+  <table class="metrics-table">
+    <thead><tr><th></th><th>지표</th><th>수치</th></tr></thead>
+    <tbody>
+      <tr><td class="mt-icon">🌡️</td><td class="mt-label">여름 기온 변화(10년)<span class="mt-src">기상청 2016→2025</span></td><td class="mt-val hi">+1.5℃</td></tr>
+      <tr><td class="mt-icon">⚡</td><td class="mt-label">학교 여름 전력 증가<span class="mt-src">한국전력공사 2016→2025</span></td><td class="mt-val hi">+23.3%</td></tr>
+      <tr><td class="mt-icon">📈</td><td class="mt-label">기온 1℃ → 전력 추가<span class="mt-src">10년 데이터 분석</span></td><td class="mt-val hi">+4,650만 kWh</td></tr>
+      <tr><td class="mt-icon">☀️</td><td class="mt-label">2025 폭염일수(역대1위)<span class="mt-src">기상청 / 2016년 23.8일</span></td><td class="mt-val warn">39.3일</td></tr>
+      <tr><td class="mt-icon">🔥</td><td class="mt-label">2025 경북 산불 피해<span class="mt-src">산림청 / 전국 94.6%</span></td><td class="mt-val warn">99,416 ha</td></tr>
+      <tr><td class="mt-icon">🍎</td><td class="mt-label">2090년 사과재배적지 소멸<span class="mt-src">농촌진흥청 2023</span></td><td class="mt-val warn">97%</td></tr>
+      <tr><td class="mt-icon">🌊</td><td class="mt-label">낙동강 수생태계 A등급<span class="mt-src">환경부 2020→2023</span></td><td class="mt-val warn">14.4%→10.2%</td></tr>
+      <tr><td class="mt-icon">🦅</td><td class="mt-label">경북 멸종위기 야생생물<span class="mt-src">국립생태원 2025</span></td><td class="mt-val ok">282종</td></tr>
+      <tr><td class="mt-icon">🌿</td><td class="mt-label">학교 신재생에너지 비율<span class="mt-src">경북교육청 2024</span></td><td class="mt-val ok">5.4%</td></tr>
+      <tr><td class="mt-icon">🌸</td><td class="mt-label">백두대간수목원 전시식물<span class="mt-src">한국수목원정원관리원</span></td><td class="mt-val ok">394종</td></tr>
+    </tbody>
+  </table>
+  <div class="divider"></div>
+  <div class="chart-title">🌡️ 여름 기온 vs ⚡ 학교 전력 (2016~2025)</div>
+  <div class="legend"><div class="leg"><div class="leg-dot" style="background:#E87F6A"></div>기온(℃)</div><div class="leg"><div class="leg-dot" style="background:#4A9E73"></div>전력(M kWh)</div></div>
+  <div id="dual-chart"></div>
+  <div style="font-size:11px;color:var(--dim);margin-bottom:14px;margin-top:4px">출처: 기상청·한국전력공사 / 공공누리 1유형</div>
+  <div class="divider"></div>
+  <div class="chart-title">🌸 백두대간수목원 이달 개화</div>
+  <div id="flower-now" style="font-size:14px;color:var(--dim);margin-bottom:6px"></div>
+  <div class="tags">
+    <span class="tag end">금강초롱꽃 멸종위기2급</span>
+    <span class="tag end">단양쑥부쟁이 멸종위기2급</span>
+    <span class="tag">구상나무 한국특산</span>
   </div>
- 
-  <!-- 연도별 기온+전력 듀얼 차트 -->
-  <div class="card">
-    <div class="card-title">🌡️ 경북 여름 기온 vs ⚡ 학교 전력 (2016-2025)</div>
-    <div class="dc-legend">
-      <div class="dc-leg"><div class="dc-dot" style="background:#E87F6A"></div>여름 기온(℃)</div>
-      <div class="dc-leg"><div class="dc-dot" style="background:#4A9E73"></div>전력(백만kWh)</div>
-    </div>
-    <div class="dual-chart" id="dual-chart"></div>
-    <div style="font-size:9px;color:var(--dim);margin-top:4px">출처: 기상청·한국전력공사 / 공공누리 1유형</div>
-  </div>
- 
-  <!-- 백두대간 개화 -->
-  <div class="card">
-    <div class="card-title">🌸 백두대간수목원 이달 개화 (경북 봉화)</div>
-    <div id="this-month-flower" style="font-size:11px;color:var(--dim)">로딩 중...</div>
-    <div class="tags" style="margin-top:8px">
-      <span class="tag end">금강초롱꽃 멸종위기2급</span>
-      <span class="tag end">단양쑥부쟁이 멸종위기2급</span>
-      <span class="tag">구상나무 한국특산</span>
-    </div>
-  </div>
- 
-  <!-- 주요 환경 수치 -->
-  <div class="card">
-    <div class="card-title">📊 경북 환경 핵심 데이터 (19개 출처)</div>
-    <div class="srow"><span class="slb">🔥 2025 산불 피해</span><span class="svl hi">99,416ha</span></div>
-    <div class="srow"><span class="slb">🌡️ 2025 여름 기온</span><span class="svl hi">27.1℃</span></div>
-    <div class="srow"><span class="slb">🌡️ 2016 여름 기온</span><span class="svl">25.6℃</span></div>
-    <div class="srow"><span class="slb">🌡️ 기온 상승폭</span><span class="svl hi">+1.5℃ (10년)</span></div>
-    <div class="srow"><span class="slb">⚡ 2025 여름 전력</span><span class="svl hi">381M kWh</span></div>
-    <div class="srow"><span class="slb">⚡ 전력 증가율</span><span class="svl hi">+23.3%</span></div>
-    <div class="srow"><span class="slb">🍎 사과재배지 2090</span><span class="svl hi">97% 소멸</span></div>
-    <div class="srow"><span class="slb">🦅 멸종위기 야생생물</span><span class="svl">282종</span></div>
-    <div class="srow"><span class="slb">🌊 낙동강 A등급</span><span class="svl">10.2%</span></div>
-    <div class="srow"><span class="slb">🌿 신재생에너지 비율</span><span class="svl">5.4%</span></div>
-  </div>
- 
+</div></div>
 </div>
 </div>
-</div>
- 
-<!-- ═══ TAB 2: PBL ═══ -->
+
+<!-- ══════════════════ PANEL 2 ══════════════════ -->
 <div class="panel" id="p2">
 <div class="layout">
 <div class="main">
-  <div class="slbl">학년별 실천 미션 (기온·전력 데이터 통합)</div>
-  <div class="pbl-grid">
- 
-    <div class="pbl">
-      <div class="pbl-grade">⭐ 1-2학년 · 통합교과</div>
-      <div class="pbl-title">날씨 그림일기 + 봄꽃 스케치북</div>
-      <div class="pbl-desc">1주일 기온 기록 → 백두대간수목원 이달 개화 식물 스케치 / "오늘 기온은 몇 도? 어떤 꽃이 피었을까?" 관찰일지</div>
-      <div class="pbl-co2">🌸 탐구: 기온이 오르면 꽃이 <strong>일찍</strong> 피는지 관찰해보자</div>
-    </div>
- 
-    <div class="pbl">
-      <div class="pbl-grade">⭐⭐ 3학년 · 과학+수학</div>
-      <div class="pbl-title">기온-전력 꺾은선그래프 과학자</div>
-      <div class="pbl-desc">경북 2016~2025년 여름 기온(25.6→27.1℃)과 전력(309→381백만kWh) 데이터로 꺾은선그래프 2개 작성 후 경향 비교</div>
-      <div class="pbl-co2">📈 탐구: 기온과 전력, 함께 오를까? 꺾은선 2개를 <strong>겹쳐서</strong> 그려보자</div>
-    </div>
- 
-    <div class="pbl">
-      <div class="pbl-grade">⭐⭐ 4학년 · 과학+사회</div>
-      <div class="pbl-title">백두대간 식물 서식지 지도 탐험가</div>
-      <div class="pbl-desc">경북 봉화 백두대간수목원 394종 개화력 분석 / 4월 개화 구상나무·분비나무가 산불 피해 구역과 겹치는 이유 탐구</div>
-      <div class="pbl-co2">🔥 탐구: 산불 피해 99,416ha에는 <strong>어떤 식물</strong>이 살고 있었을까?</div>
-    </div>
- 
-    <div class="pbl">
-      <div class="pbl-grade">⭐⭐⭐ 5학년 · 과학+실과</div>
-      <div class="pbl-title">학교 에너지 절약 데이터 과학자</div>
-      <div class="pbl-desc">기온 1℃ 상승 = 전력 4,650만 kWh 추가 소비 계산 / 에어컨 1도 높이기 = CO₂ 248톤 절감 계산 / 소나무 22,995그루 환산</div>
-      <div class="pbl-co2">⚡ 계산: 에어컨 1도 = <strong>소나무 22,995그루</strong> 1년 흡수량과 같다</div>
-    </div>
- 
-    <div class="pbl">
-      <div class="pbl-grade">⭐⭐⭐ 6학년 · 과학+사회</div>
-      <div class="pbl-title">기후위기 3데이터 교차 분석 기자단</div>
-      <div class="pbl-desc">기온 상승 + 전력 증가 + 개화 시기 3개 데이터 교차 분석 / "경북의 10년: 기온이 오르고, 전기도 오르고, 꽃도 일찍 피고" 기사 작성</div>
-      <div class="pbl-co2">📰 탐구: <strong>세 가지 그래프</strong>가 모두 같은 방향으로 움직인다면?</div>
-    </div>
- 
+  <!-- 연결 상태 요약 -->
+  <div class="ctx-summary">
+    <span class="cs-label">1번에서 선택:</span>
+    <span class="cs-val" id="p2-grade">5학년</span>
+    <span class="cs-sep">·</span>
+    <span class="cs-val" id="p2-subject">과학(생태계)</span>
+    <span class="cs-sep">·</span>
+    <span class="cs-val" id="p2-kw">⚡ 학교 에너지</span>
+    <button class="cs-edit" onclick="switchTabByNum(1)">← 변경하기</button>
   </div>
+
+  <button class="regen-btn" onclick="genPBL()" id="pbl-regen-btn">
+    🔄 선택 조건으로 PBL 미션 다시 생성
+  </button>
+
+  <div class="outbox lit" id="out-pbl" style="min-height:200px">
+    <div class="placeholder">
+      <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" opacity=".35"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+      1번에서 탐구문제를 먼저 생성하거나<br>아래 버튼을 눌러 바로 생성하세요
+    </div>
+    <button class="copybtn" id="cp-pbl" onclick="doCopy('out-pbl')">📋 복사</button>
+  </div>
+
+  <button class="next-btn" id="next2" onclick="goTab3()">
+    ③ 수업안·생기부 자동 생성하기 →
+  </button>
 </div>
- 
-<div class="side">
-  <div class="card">
-    <div class="card-title">⚡ CO₂ 절감 계산기</div>
-    <div class="calc">
-      <div class="fg"><label>학급 인원</label><input type="number" id="stu" value="26" min="1" max="40" oninput="calcCO2()"></div>
-      <div class="fg"><label>실천 기간 (주)</label><input type="number" id="wk" value="4" min="1" max="20" oninput="calcCO2()"></div>
-      <div class="fg">
-        <label>실천 유형</label>
-        <select id="ptype" oninput="calcCO2()">
-          <option value="recycle">분리배출 (주 0.225kg/인)</option>
-          <option value="energy">에어컨 1도 절약</option>
-          <option value="vegan">채식 하루 (2.5kg/인)</option>
-        </select>
-      </div>
-      <div class="calc-result">
-        <div style="font-size:10px;color:var(--dim);margin-bottom:3px">우리 반 CO₂ 절감</div>
-        <div class="calc-num" id="co2r">23.4</div>
-        <div style="font-size:11px;color:var(--dim)">kg CO₂</div>
-        <div class="calc-pine" id="piner">🌲 소나무 2.2그루 효과</div>
-      </div>
+
+<div class="side"><div class="side-inner">
+  <div class="side-title">⚡ CO₂ 절감 계산기</div>
+  <div style="display:grid;gap:12px;margin-bottom:16px">
+    <div class="fg"><label>학급 인원</label><input type="number" id="stu" value="26" min="1" max="40" oninput="calcCO2()"></div>
+    <div class="fg"><label>실천 기간 (주)</label><input type="number" id="wk" value="4" min="1" max="20" oninput="calcCO2()"></div>
+    <div class="fg"><label>실천 유형</label>
+      <select id="ptype" oninput="calcCO2()">
+        <option value="recycle">분리배출 (주 0.225kg/인)</option>
+        <option value="energy">에어컨 1도 절약</option>
+        <option value="vegan">채식 하루 (2.5kg/인)</option>
+      </select>
+    </div>
+    <div style="background:rgba(74,158,115,.09);border-radius:10px;padding:16px;text-align:center">
+      <div style="font-size:14px;color:var(--dim);margin-bottom:4px">우리 반 CO₂ 절감량</div>
+      <div style="font-size:32px;font-weight:900;color:var(--gold);font-family:'DM Mono',monospace" id="co2r">23.4</div>
+      <div style="font-size:14px;color:var(--dim)">kg CO₂</div>
+      <div style="font-size:15px;color:var(--mint);margin-top:8px" id="piner">🌲 소나무 2.2그루 효과</div>
     </div>
   </div>
- 
-  <div class="card">
-    <div class="card-title">🌡️ 월별 평균기온 (2025년)</div>
-    <div id="temp-bars"></div>
-    <div style="font-size:9px;color:var(--dim);margin-top:5px">출처: 기상청 / 공공누리 1유형</div>
-  </div>
+  <div class="divider"></div>
+  <div class="chart-title">🌡️ 2025년 경북 월별 기온</div>
+  <div id="temp-bars"></div>
+  <div style="font-size:11px;color:var(--dim);margin-top:5px">출처: 기상청 / 공공누리 1유형</div>
+</div></div>
 </div>
 </div>
-</div>
- 
-<!-- ═══ TAB 3: 수업안·생기부 ═══ -->
+
+<!-- ══════════════════ PANEL 3 ══════════════════ -->
 <div class="panel" id="p3">
 <div class="layout">
 <div class="main">
+  <!-- 연결 상태 요약 -->
+  <div class="ctx-summary">
+    <span class="cs-label">1번에서 선택:</span>
+    <span class="cs-val" id="p3-grade">5학년</span>
+    <span class="cs-sep">·</span>
+    <span class="cs-val" id="p3-subject">과학(생태계)</span>
+    <span class="cs-sep">·</span>
+    <span class="cs-val" id="p3-kw">⚡ 학교 에너지</span>
+    <button class="cs-edit" onclick="switchTabByNum(1)">← 변경하기</button>
+  </div>
+
   <div class="slbl">수업안 + 생활기록부 초안</div>
   <div class="rec-form">
-    <div class="rfg"><label>수업 주제</label><input type="text" id="rtopic" placeholder="예: 경북 기온 상승과 학교 전력사용량의 관계 탐구"></div>
-    <div class="rfg">
-      <label>핵심 활용 데이터</label>
-      <select id="rdata">
-        <option>경북 월별 평균기온(2016-2025) + 교육서비스 전력사용량</option>
-        <option>백두대간수목원 월별 개화식물 394종</option>
-        <option>경북 산불 피해 99,416ha + 생태계 영향</option>
-        <option>경북 사과 재배지 변동 예측 (2090년 97% 소멸)</option>
-        <option>낙동강 수생태계 A등급 비율 변화</option>
-      </select>
+    <div class="fg">
+      <label>수업 주제 <span style="font-size:12px;color:var(--green);font-weight:400">(1번 탐구문제에서 자동 연결)</span></label>
+      <input type="text" id="rtopic" class="auto-field" placeholder="탐구문제를 생성하면 자동 입력됩니다 (직접 수정도 가능)" oninput="this.dataset.userEdited='1'">
     </div>
-    <div class="rfg"><label>학습 목표</label><input type="text" id="rgoal" placeholder="예: 기온과 에너지 소비의 관계를 데이터로 설명할 수 있다"></div>
-    <button class="grb" onclick="genRecord()">✨ 수업안 + 생기부 3수준 자동 생성</button>
-    <div class="outbox" id="outrec" style="min-height:180px">
+    <div class="fg">
+      <label>핵심 활용 데이터 <span style="font-size:12px;color:var(--green);font-weight:400">(키워드 연동)</span></label>
+      <input type="text" id="rdata" class="auto-field">
+    </div>
+    <div class="fg">
+      <label>학습 목표 <span style="font-size:12px;color:var(--green);font-weight:400">(키워드 연동)</span></label>
+      <input type="text" id="rgoal" class="auto-field">
+    </div>
+    <button class="grb" onclick="genRecord()" id="rec-btn">✨ 수업안 + 생기부 3수준 자동 생성</button>
+    <div class="outbox" id="outrec" style="min-height:190px">
       <div class="placeholder">
-        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" opacity=".4"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
-        정보를 입력하고 생성 버튼을 누르세요
+        <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" opacity=".35"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
+        위 버튼을 누르면 자동으로 수업안이 생성됩니다
       </div>
-      <button class="copybtn" id="cprec" onclick="doCopy('outrec')">복사</button>
+      <button class="copybtn" id="cprec" onclick="doCopy('outrec')">📋 복사</button>
     </div>
-    <div class="slbl" style="margin-top:4px">생기부 상·중·하 3수준</div>
+    <div class="slbl" style="margin-top:6px">생기부 상·중·하 3수준</div>
     <div class="lvl-grid">
-      <div class="lvl hi"><label>상 (우수)</label><textarea id="lhi" placeholder="자동 생성됩니다"></textarea></div>
-      <div class="lvl md"><label>중 (보통)</label><textarea id="lmd" placeholder="자동 생성됩니다"></textarea></div>
-      <div class="lvl lo"><label>하 (기초)</label><textarea id="llo" placeholder="자동 생성됩니다"></textarea></div>
+      <div class="lvl hi"><label>상 (우수)</label><textarea id="lhi" placeholder="수업안 생성 후 자동 입력됩니다"></textarea></div>
+      <div class="lvl md"><label>중 (보통)</label><textarea id="lmd" placeholder="수업안 생성 후 자동 입력됩니다"></textarea></div>
+      <div class="lvl lo"><label>하 (기초)</label><textarea id="llo" placeholder="수업안 생성 후 자동 입력됩니다"></textarea></div>
     </div>
   </div>
 </div>
- 
-<div class="side">
-  <div class="card">
-    <div class="card-title">📋 2022 개정 성취기준</div>
-    <div class="ach-row"><span class="ach-grade">1-2 통합</span><span class="ach-text">계절 변화와 날씨 탐구</span></div>
-    <div class="ach-row"><span class="ach-grade">3 과학</span><span class="ach-text">[4과01-01] 날씨와 우리 생활 관계</span></div>
-    <div class="ach-row"><span class="ach-grade">3 수학</span><span class="ach-text">[4수05-03] 막대·꺾은선그래프</span></div>
-    <div class="ach-row"><span class="ach-grade">4 과학</span><span class="ach-text">[4과10-01] 생물다양성과 환경</span></div>
-    <div class="ach-row"><span class="ach-grade">5 과학</span><span class="ach-text">[6과05-03] 생태계와 먹이관계</span></div>
-    <div class="ach-row"><span class="ach-grade">5 실과</span><span class="ach-text">[6실01-03] 생활 속 에너지 절약</span></div>
-    <div class="ach-row"><span class="ach-grade">6 과학</span><span class="ach-text">[6과10-01] 기후변화와 지속가능발전</span></div>
-    <div class="ach-row"><span class="ach-grade">6 사회</span><span class="ach-text">[6사07-03] 지속가능한 미래</span></div>
-  </div>
-  <div class="card" style="margin-top:10px">
-    <div class="card-title">🤖 AI 활용 정보</div>
-    <div class="srow"><span class="slb">모델</span><span class="svl">Claude claude-sonnet-4-5</span></div>
-    <div class="srow"><span class="slb">데이터 출처</span><span class="svl">19개 (공공누리 1유형)</span></div>
-    <div class="srow"><span class="slb">성취기준</span><span class="svl">1~6학년 전교과</span></div>
-    <div class="srow"><span class="slb">출력 형식</span><span class="svl">SSIBL 3단계</span></div>
-    <div class="srow"><span class="slb">배포</span><span class="svl">Vercel 서버리스</span></div>
-  </div>
+<div class="side"><div class="side-inner">
+  <div class="side-title">📋 2022 개정 성취기준</div>
+  <div class="ach-row"><span class="ach-g">1-2 통합</span><span class="ach-t">계절 변화와 날씨 탐구</span></div>
+  <div class="ach-row"><span class="ach-g">3 과학</span><span class="ach-t">[4과01-01] 날씨와 우리 생활의 관계</span></div>
+  <div class="ach-row"><span class="ach-g">3 수학</span><span class="ach-t">[4수05-03] 꺾은선그래프 해석과 작성</span></div>
+  <div class="ach-row"><span class="ach-g">4 과학</span><span class="ach-t">[4과10-01] 생물다양성과 환경보전</span></div>
+  <div class="ach-row"><span class="ach-g">5 과학</span><span class="ach-t">[6과05-03] 생태계 구성 요소와 먹이관계</span></div>
+  <div class="ach-row"><span class="ach-g">5 실과</span><span class="ach-t">[6실01-03] 생활 속 에너지 절약 실천</span></div>
+  <div class="ach-row"><span class="ach-g">6 과학</span><span class="ach-t">[6과10-01] 기후변화 원인과 지속가능발전</span></div>
+  <div class="ach-row"><span class="ach-g">6 사회</span><span class="ach-t">[6사07-03] 지속가능한 미래를 위한 역할</span></div>
+  <div class="divider"></div>
+  <div class="side-title" style="font-size:16px">🤖 AI 활용 정보</div>
+  <table class="metrics-table"><tbody>
+    <tr><td class="mt-label">모델</td><td class="mt-val ok">Claude claude-sonnet-4-5</td></tr>
+    <tr><td class="mt-label">데이터 출처</td><td class="mt-val ok">19개 (공공누리 1유형)</td></tr>
+    <tr><td class="mt-label">성취기준</td><td class="mt-val ok">1~6학년 전교과</td></tr>
+    <tr><td class="mt-label">출력 형식</td><td class="mt-val ok">SSIBL 3단계</td></tr>
+    <tr><td class="mt-label">배포</td><td class="mt-val ok">Vercel 서버리스</td></tr>
+  </tbody></table>
+</div></div>
 </div>
 </div>
-</div>
- 
+
 <script>
-// ═══ PREPROCESSED DATA ═══
-const SUMMER_TEMP = {"2016":25.6,"2017":25.5,"2018":26.8,"2019":25.2,"2020":24.2,"2021":24.8,"2022":25.4,"2023":25.8,"2024":27.0,"2025":27.2};
-const SUMMER_ELEC = {"2016":308.8,"2017":330.5,"2018":331.8,"2019":319.8,"2020":311.9,"2021":319.6,"2022":350.3,"2023":340.6,"2024":365.2,"2025":380.8};
-const MONTHLY_TEMP_2025 = {"1":0.1,"2":-0.2,"3":7.8,"4":13.4,"5":16.8,"6":23.3,"7":26.9,"8":27.4,"9":22.6,"10":16.2,"11":8.2,"12":2.1};
-const FLOWER_DATA = {
-  2:['개복수초','풍년화'],
-  3:['미선나무','숲바람꽃','산수유','생강나무','너도바람꽃','히어리','매실나무','동강할미꽃'],
-  4:['구상나무','분비나무','얼레지','노루귀','박태기나무','진달래','철쭉','홀아비바람꽃'],
-  5:['금강봄맞이','현호색','은방울꽃','족도리풀','민들레','할미꽃','꽃마리','제비꽃'],
-  6:['태백기린초','범꼬리','눈개승마','한라개승마','붓꽃','섬기린초'],
-  7:['참취','개미취','배초향','두메부추','으아리','큰꽃으아리','달맞이꽃'],
-  8:['금강초롱꽃','벌개미취','자귀나무','독활','망개나무','모시대','짚신나물'],
-  9:['투구꽃','단양쑥부쟁이','까실쑥부쟁이','촛대승마','쑥부쟁이','산비장이'],
-  10:['산부추','해국','산국','감국']
+// ══════════════════════════════════════════════
+// DATA
+// ══════════════════════════════════════════════
+const MONTHLY_TEMP={"2016":{"1":-1.2,"2":1.6,"3":7.2,"4":13.6,"5":18.5,"6":22.3,"7":25.0,"8":26.2,"9":20.8,"10":15.3,"11":7.4,"12":3.0},"2017":{"1":0.0,"2":1.9,"3":6.5,"4":14.2,"5":19.2,"6":21.7,"7":26.1,"8":24.8,"9":20.0,"10":15.0,"11":6.6,"12":-0.6},"2018":{"1":-2.0,"2":-0.2,"3":8.3,"4":13.8,"5":17.9,"6":22.3,"7":26.8,"8":26.7,"9":19.8,"10":12.7,"11":7.5,"12":0.9},"2019":{"1":0.5,"2":2.9,"3":7.8,"4":12.1,"5":19.0,"6":21.3,"7":24.7,"8":25.8,"9":21.5,"10":15.4,"11":8.4,"12":2.4},"2020":{"1":2.8,"2":3.6,"3":8.1,"4":11.2,"5":17.8,"6":22.8,"7":22.0,"8":26.5,"9":19.7,"10":13.6,"11":8.4,"12":0.3},"2021":{"1":-1.1,"2":3.5,"3":8.8,"4":12.8,"5":16.3,"6":21.3,"7":25.4,"8":24.1,"9":20.6,"10":14.7,"11":8.2,"12":2.0},"2022":{"1":-0.4,"2":0.2,"3":7.9,"4":14.2,"5":18.6,"6":22.5,"7":25.7,"8":25.1,"9":20.3,"10":13.8,"11":9.5,"12":-1.1},"2023":{"1":-0.3,"2":3.0,"3":10.0,"4":13.2,"5":17.9,"6":22.4,"7":25.3,"8":26.2,"9":22.2,"10":14.3,"11":7.9,"12":2.2},"2024":{"1":1.1,"2":4.1,"3":7.0,"4":15.0,"5":17.7,"6":22.8,"7":26.4,"8":27.6,"9":24.1,"10":15.9,"11":9.7,"12":2.2},"2025":{"1":0.1,"2":-0.2,"3":7.8,"4":13.4,"5":16.8,"6":23.3,"7":26.9,"8":27.4,"9":22.6,"10":16.2,"11":8.2,"12":2.1}};
+const SUMMER_TEMP={"2016":25.6,"2017":25.5,"2018":26.8,"2019":25.2,"2020":24.2,"2021":24.8,"2022":25.4,"2023":25.8,"2024":27.0,"2025":27.1};
+const SUMMER_ELEC={"2016":308.8,"2017":330.5,"2018":331.8,"2019":319.8,"2020":311.9,"2021":319.6,"2022":350.3,"2023":340.6,"2024":365.2,"2025":380.8};
+const FLOWER_DATA={2:["개복수초","풍년화"],3:["미선나무","숲바람꽃","산수유","생강나무","너도바람꽃","히어리"],4:["구상나무","분비나무","얼레지","노루귀","박태기나무","진달래"],5:["금강봄맞이","현호색","은방울꽃","할미꽃","제비꽃","철쭉"],6:["태백기린초","범꼬리","눈개승마","붓꽃"],7:["참취","개미취","배초향","두메부추","으아리"],8:["금강초롱꽃","벌개미취","자귀나무","독활","망개나무"],9:["투구꽃","단양쑥부쟁이","까실쑥부쟁이","쑥부쟁이"],10:["산부추","해국","산국","감국"]};
+
+// 키워드별 메타 데이터 (자동 연결용)
+const KW_META = {
+  "에너지":   { emoji:"⚡", label:"학교 에너지", data:"경북 교육서비스 전력사용량(2016-2025) + 학교별 에너지사용량(2024)", goal:"기온 상승과 학교 에너지 소비의 관계를 데이터로 설명할 수 있다" },
+  "기온전력": { emoji:"📈", label:"기온-전력 상관", data:"경북 월별 평균기온(2016-2025) + 교육서비스 전력사용량", goal:"기온과 전력소비의 상관관계를 꺾은선그래프로 분석할 수 있다" },
+  "산불":     { emoji:"🔥", label:"산불·산림", data:"2025년 산불통계연보 + 멸종위기 야생생물 목록 + 백두대간수목원 개화식물", goal:"산불이 생태계에 미치는 영향을 먹이사슬과 연결하여 설명할 수 있다" },
+  "폭염기온": { emoji:"🌡️", label:"폭염·기온", data:"경북 월별 평균기온(2016-2025) + 폭염일수 통계", goal:"폭염일수 변화와 기온 상승 추세를 데이터로 분석할 수 있다" },
+  "식물":     { emoji:"🌸", label:"백두대간 식물", data:"백두대간수목원 월별 개화식물목록(394종) + 멸종위기 야생생물 목록", goal:"기후변화가 식물 개화 시기와 서식지에 미치는 영향을 설명할 수 있다" },
+  "사과":     { emoji:"🍎", label:"사과재배지", data:"경북 사과 재배지 변동 예측 + 경북 과실류 생산량 + 월별 평균기온", goal:"기후변화가 경북 사과 재배지 변화에 미치는 영향을 설명할 수 있다" },
+  "탄소":     { emoji:"♻️", label:"탄소저감", data:"전국 1인 폐기물 발생량 + 교육서비스 전력사용량 + 경북 산림 흡수량", goal:"생활 속 실천이 CO₂ 절감에 미치는 효과를 계산하여 설명할 수 있다" },
+  "멸종위기": { emoji:"🦅", label:"멸종위기종", data:"멸종위기 야생생물 목록 + 낙동강 수생태계 건강성 + 백두대간 개화식물", goal:"경북 멸종위기 야생생물의 서식 환경과 보전 방안을 설명할 수 있다" }
 };
- 
-// ═══ SYSTEM PROMPT (v3 — 기온 데이터 추가) ═══
-const SYS = `당신은 경북 지역 환경 공공데이터를 활용한 초등 환경교육 전문가입니다.
-SSIBL 3단계(①생각깨우기 ②탐구문제 ③실천미션) 형식으로만 출력하세요.
- 
-[경북 기상 데이터 — 기상청, 공공누리 1유형]
-• 경북 여름(7-8월) 평균기온: 2016년 25.6℃ → 2025년 27.1℃ (+1.5℃ 상승)
-• 연도별 여름 기온: 2016:25.6, 2017:25.5, 2018:26.8, 2019:25.2, 2020:24.2, 2021:24.8, 2022:25.4, 2023:25.8, 2024:27.0, 2025:27.1 (℃)
-• 2025년 월별 기온: 1월 0.1 / 3월 7.8 / 5월 16.8 / 7월 26.9 / 8월 27.4 / 9월 22.6℃
-• 2023년 연평균 16.3℃ (10년 중 최고, 전국 이상고온 해)
-• 경북 폭염일수: 2016년 23.8일 → 2025년 39.3일 (+65%)
- 
-[경북 교육서비스 전력 — 한국전력공사, 공공누리 1유형]
-• 여름(7-8월) 전력: 2016년 308.8M → 2025년 380.8M kWh (+23.3%)
-• 연도별: 2016:308.8, 2017:330.5, 2018:331.8, 2019:319.8, 2020:311.9, 2021:319.6, 2022:350.3, 2023:340.6, 2024:365.2, 2025:380.8 (백만kWh)
-• 핵심 상관: 기온 1℃ 상승 시 여름 전력 약 4,650만 kWh 추가 소비
-• 경북 초등학교 연간 전력: 2024년 1억 5천만 kWh / 신재생에너지 비율 5.4%
-• 에어컨 1도 높이기 = CO₂ 248톤 절감 = 소나무 22,995그루 (CO₂ 1kWh=0.4747kg, 소나무 10.8kg/그루/년)
- 
-[경북 환경 데이터 — 공공누리 1유형]
-• 2025 경북 산불: 99,416ha 피해 (전국 94.6%, 사망 32명)
-• 경북 사과 재배적지: 2090년 97% 소멸 예측 (농촌진흥청)
-• 낙동강 수생태계 A등급: 2020년 14.4% → 2023년 10.2% 하락
-• 경북 멸종위기 야생생물: 282종
- 
-[백두대간수목원 개화식물 — 한국수목원정원관리원, 공공누리 1유형]
-• 경북 봉화군 / 총 394종 / 2월~10월 개화
-• 4-5월: 구상나무(한국특산 고산 침엽수), 분비나무(산불에 취약한 고산종), 얼레지, 노루귀
-• 6-8월: 태백기린초(백두대간 특산), 금강초롱꽃(멸종위기2급), 단양쑥부쟁이(멸종위기2급)
-• 산불 피해 위협: 구상나무·분비나무 고산 서식지, 금강초롱꽃 경북 분포지
- 
-[2022 개정 교육과정 — 교육부 NCIC, 공공누리 1유형]
-• 3학년 수학: [4수05-03] 꺾은선그래프 해석과 작성
-• 5학년 실과: [6실01-03] 생활 속 에너지 절약 실천
-• 6학년 과학: [6과10-01] 기후변화 원인과 지속가능발전
- 
-[SSIBL 출력 형식 — 반드시 준수]
-🌱 생각 깨우기
-(학생 공감형 도입 1~2문장, 구체적 수치 포함)
- 
-📊 탐구 문제
-(공공데이터 수치 포함 구체적 질문 2~3개)
- 
-🎯 실천 미션
-(학년 수준 PBL 과제 1~2개, CO₂ 계산 포함 시 수식 명시)`;
- 
-// ═══ STATE ═══
-const CTX = { grade:'5', subject:'과학(생태계)', kw:'에너지' };
-['grade','subject','kw-sel'].forEach(id=>{
-  document.getElementById(id)?.addEventListener('change', e=>{
-    if(id==='grade') CTX.grade=e.target.value;
-    else if(id==='subject') CTX.subject=e.target.value;
-    else CTX.kw=e.target.value;
-    syncKwBtns();
-  });
-});
- 
-function syncKwBtns(){
-  document.querySelectorAll('.kw-btn').forEach(b=>{
-    const fn=b.getAttribute('onclick')||'';
-    b.classList.toggle('on', fn.includes(`'${CTX.kw}'`));
-  });
-  document.getElementById('kw-sel').value=CTX.kw;
+
+// ══════════════════════════════════════════════
+// GLOBAL STATE — 모든 탭이 공유하는 단일 상태
+// ══════════════════════════════════════════════
+const STATE = {
+  grade: "5학년",
+  subject: "과학(생태계)",
+  kw: "에너지",
+  // 생성된 결과물 (탭 간 전달)
+  problemText: "",   // 1번 탐구문제 결과
+  pblText: "",       // 2번 PBL 결과
+  // 단계 완료 여부
+  step1Done: false,
+  step2Done: false,
+  step3Done: false,
+};
+
+// ══════════════════════════════════════════════
+// CTX CHANGE → 상태 초기화 & 배너 업데이트
+// ══════════════════════════════════════════════
+function onCtxChange() {
+  STATE.grade   = document.getElementById("grade").value + "학년";
+  STATE.subject = document.getElementById("subject").value;
+  // 상태 초기화 (변경 시 이후 단계 결과 무효)
+  STATE.problemText = "";
+  STATE.pblText = "";
+  STATE.step1Done = false;
+  STATE.step2Done = false;
+  STATE.step3Done = false;
+  // rtopic 사용자 편집 플래그도 리셋
+  const rt = document.getElementById("rtopic");
+  if(rt) rt.dataset.userEdited = "";
+  updateBanner();
+  resetOutputs();
 }
- 
-function selKw(btn, kw){
-  CTX.kw=kw;
-  document.getElementById('kw-sel').value=kw;
+
+function onKwSelChange() {
+  STATE.kw = document.getElementById("kw-sel").value;
   syncKwBtns();
+  onCtxChange();  // 키워드 변경도 전체 초기화
 }
- 
-function switchTab(id,btn){
-  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  btn.classList.add('active');
+
+function selKw(btn, kw) {
+  STATE.kw = kw;
+  document.getElementById("kw-sel").value = kw;
+  syncKwBtns();
+  // 키워드만 바꿀 때도 초기화
+  STATE.problemText = "";
+  STATE.pblText = "";
+  STATE.step1Done = false;
+  STATE.step2Done = false;
+  STATE.step3Done = false;
+  updateBanner();
+  resetOutputs();
 }
- 
-// ═══ DEMO CONTENT (fallback when no API) ═══
-const DEMOS = {
-  '기온전력': `🌱 생각 깨우기
-경북의 여름 기온이 2016년 25.6℃에서 2025년 27.1℃로 올랐어요. 딱 1.5℃인데, 이 차이가 학교에서 쓰는 전기에도 영향을 미쳤을까요?
- 
-📊 탐구 문제
-1. 경북 여름 평균기온과 교육서비스 전력사용량 데이터(2016~2025)를 꺾은선그래프 2개로 그려보세요. 두 선이 비슷한 방향으로 움직이나요?
-   기온: 25.6→27.1℃ / 전력: 308.8→380.8백만kWh
-2. 기온이 1℃ 오를 때마다 경북 학교들의 여름 전기사용량은 약 4,650만 kWh 늘어난다고 해요. 이 전기를 모두 태양광으로 만들려면 학교 지붕 태양광 패널이 몇 개 필요할까요?
-3. 기후변화로 앞으로 여름이 1℃ 더 오른다면, 경북 학교들은 전기를 얼마나 더 써야 할까요? CO₂는 얼마나 더 나올까요?
- 
-🎯 실천 미션
-【기온-전력 데이터 탐정】
-① 2016~2025년 여름 기온·전력 데이터로 꺾은선그래프 2개 작성
-② 두 그래프를 겹쳐서 상관관계 분석 → "기온 1℃ 상승 = 전력 4,650만 kWh 증가" 검증
-③ 우리 학교의 에너지 절약 목표 설정 → CO₂ 절감량 소나무 환산`,
- 
-  '폭염기온': `🌱 생각 깨우기
-2025년 경북의 폭염일수는 39.3일로 역대 1위를 기록했어요. 2016년 23.8일과 비교하면 15.5일이나 늘었어요. 여름이 이렇게 길어지면 식물과 동물, 그리고 우리 생활은 어떻게 달라질까요?
- 
-📊 탐구 문제
-1. 경북 여름 평균기온이 25.6℃(2016)에서 27.1℃(2025)로 1.5℃ 올랐어요. 백두대간수목원에서 4월에 피는 구상나무는 기온이 오르면 꽃이 일찍 피거나 늦게 피게 될까요?
-2. 폭염일수가 23.8일에서 39.3일로 늘어난 기간 동안, 경북 학교들의 여름 전력 사용량도 308.8백만kWh에서 380.8백만kWh로 23.3% 늘었어요. 이 둘은 관계가 있을까요?
-3. 기온 상승으로 사과 재배적지가 2090년에 97% 소멸한다고 해요. 지금 경북의 여름 기온(27.1℃)이 사과 재배에 어떤 영향을 미칠까요?
- 
-🎯 실천 미션
-【폭염일수 10년 탐구】
-① 2016~2025년 경북 폭염일수와 여름 기온 데이터로 막대+꺾은선 복합 그래프 작성
-② "기온 1℃ 오르면 폭염일수는 얼마나 늘어날까?" 추세선 그리기
-③ 학교 기후 위기 신문 제작: 10년 데이터로 보는 경북의 변화`,
- 
-  '에너지': `🌱 생각 깨우기
+
+function syncKwBtns() {
+  document.querySelectorAll(".kw-btn").forEach(b => {
+    const fn = b.getAttribute("onclick") || "";
+    b.classList.toggle("on", fn.includes(`'${STATE.kw}'`));
+  });
+}
+
+function updateBanner() {
+  const meta = KW_META[STATE.kw] || {};
+  // 배너 칩
+  document.getElementById("sb-grade").textContent   = STATE.grade;
+  document.getElementById("sb-subject").textContent = STATE.subject;
+  document.getElementById("sb-kw").textContent      = (meta.emoji||"") + " " + (meta.label||STATE.kw);
+  // 패널 2,3 컨텍스트 요약
+  ["p2","p3"].forEach(p => {
+    const g = document.getElementById(`${p}-grade`);
+    const s = document.getElementById(`${p}-subject`);
+    const k = document.getElementById(`${p}-kw`);
+    if(g) g.textContent = STATE.grade;
+    if(s) s.textContent = STATE.subject;
+    if(k) k.textContent = (meta.emoji||"") + " " + (meta.label||STATE.kw);
+  });
+  // 패널 3 자동 입력 필드 (항상 최신 STATE 반영)
+  const meta2 = KW_META[STATE.kw] || {};
+  const topic = STATE.problemText
+    ? extractTopic(STATE.problemText)
+    : `${STATE.grade} ${STATE.subject} — ${meta2.label||STATE.kw} 탐구`;
+  const rtopic = document.getElementById("rtopic");
+  const rdata  = document.getElementById("rdata");
+  const rgoal  = document.getElementById("rgoal");
+  if(rtopic && !rtopic.dataset.userEdited) rtopic.value = topic;
+  if(rdata)  rdata.value  = meta2.data || "";
+  if(rgoal)  rgoal.value  = meta2.goal || "";
+  // 스텝 배지
+  updateStepBadges();
+}
+
+function extractTopic(text) {
+  // 탐구문제 텍스트에서 주제 추출 (첫 탐구문제 줄)
+  const lines = text.split("
+").filter(l => l.trim());
+  const pLine = lines.find(l => l.includes("탐구 문제") || l.includes("탐구문제"));
+  const nextLine = pLine ? lines[lines.indexOf(pLine)+1] : "";
+  if(nextLine && nextLine.length > 5) {
+    return nextLine.replace(/^[0-9\.\s]+/, "").slice(0,60) + (nextLine.length>60?"...":"");
+  }
+  return `${STATE.grade} ${STATE.subject} — ${(KW_META[STATE.kw]||{}).label||STATE.kw} 탐구`;
+}
+
+function updateStepBadges() {
+  const s1 = document.getElementById("step1");
+  const s2 = document.getElementById("step2");
+  const s3 = document.getElementById("step3");
+  if(s1) s1.className = "sb-step" + (STATE.step1Done?" done":" ");
+  if(s2) s2.className = "sb-step" + (STATE.step2Done?" done":STATE.step1Done?" active":" ");
+  if(s3) s3.className = "sb-step" + (STATE.step3Done?" done":STATE.step2Done?" active":" ");
+  // 탭 체크 표시
+  document.getElementById("tab1")?.classList.toggle("done", STATE.step1Done);
+  document.getElementById("tab2")?.classList.toggle("done", STATE.step2Done);
+  document.getElementById("tab3")?.classList.toggle("done", STATE.step3Done);
+}
+
+function resetOutputs() {
+  // 1번 출력 초기화
+  const o1 = document.getElementById("out1");
+  if(o1) { o1.classList.remove("lit"); o1.innerHTML = `<div class="placeholder"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" opacity=".35"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>학년·교과·키워드를 선택하고 생성 버튼을 누르세요</div><button class="copybtn" id="cp1" onclick="doCopy('out1')">📋 복사</button>`; }
+  document.getElementById("next1")?.classList.remove("show");
+  // 2번 초기화
+  const o2 = document.getElementById("out-pbl");
+  if(o2) { o2.innerHTML = `<div class="placeholder"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" opacity=".35"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>1번에서 탐구문제를 먼저 생성하거나<br>아래 버튼을 눌러 바로 생성하세요</div><button class="copybtn" id="cp-pbl" onclick="doCopy('out-pbl')">📋 복사</button>`; }
+  document.getElementById("next2")?.classList.remove("show");
+  // 3번 초기화
+  const or = document.getElementById("outrec");
+  if(or) { or.classList.remove("lit"); or.innerHTML = `<div class="placeholder"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" opacity=".35"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>위 버튼을 누르면 자동으로 수업안이 생성됩니다</div><button class="copybtn" id="cprec" onclick="doCopy('outrec')">📋 복사</button>`; }
+  ["lhi","lmd","llo"].forEach(id => { const el=document.getElementById(id); if(el) el.value=""; });
+}
+
+// ══════════════════════════════════════════════
+// TAB NAVIGATION
+// ══════════════════════════════════════════════
+function switchTab(id, btn, num) {
+  document.querySelectorAll(".panel").forEach(p => p.classList.remove("on"));
+  document.querySelectorAll(".tab").forEach(b => b.classList.remove("on"));
+  document.getElementById(id).classList.add("on");
+  btn.classList.add("on");
+  // 탭 진입 시 자동 생성 트리거
+  if(num === 2) { updateBanner(); if(!STATE.step2Done) genPBL(); }
+  if(num === 3) { updateBanner(); genRecord(); }
+}
+function switchTabByNum(n) {
+  const tabs = [null, "tab1","tab2","tab3"];
+  const panels = [null, "p1","p2","p3"];
+  document.querySelectorAll(".panel").forEach(p=>p.classList.remove("on"));
+  document.querySelectorAll(".tab").forEach(b=>b.classList.remove("on"));
+  document.getElementById(panels[n]).classList.add("on");
+  document.getElementById(tabs[n]).classList.add("on");
+  if(n === 2) { updateBanner(); if(!STATE.step2Done) genPBL(); }
+  if(n === 3) { updateBanner(); genRecord(); }
+}
+function goTab2() { switchTabByNum(2); }
+function goTab3() { switchTabByNum(3); }
+
+// ══════════════════════════════════════════════
+// SYSTEM PROMPT
+// ══════════════════════════════════════════════
+const SYS = `당신은 경북 지역 환경 공공데이터를 활용한 초등 환경교육 전문가입니다.
+
+[경북 기상·전력 데이터 — 기상청·한국전력공사, 공공누리 1유형]
+• 여름 기온: 2016:25.6, 2018:26.8, 2022:25.4, 2024:27.0, 2025:27.1 (℃) / +1.5℃ 상승
+• 여름 전력: 2016:308.8, 2022:350.3, 2024:365.2, 2025:380.8 (백만kWh) / +23.3%
+• 기온 1℃ 상승 = 여름 전력 4,650만 kWh 추가 / 폭염일수: 2016년 23.8일→2025년 39.3일
+
+[경북 환경 데이터 — 공공누리 1유형]
+• 2025 산불: 99,416ha / 사과재배적지 2090년 97% 소멸 / 낙동강 A등급 14.4%→10.2% / 멸종위기 282종
+• 에어컨 1도 절약 = CO₂ 248톤 = 소나무 22,995그루 (1kWh=0.4747kg CO₂, 소나무 10.8kg/그루/년)
+
+[백두대간수목원 — 한국수목원정원관리원, 공공누리 1유형]
+• 경북 봉화군 / 394종 / 4월: 구상나무·분비나무(한국특산 고산종) / 8월: 금강초롱꽃(멸종위기2급)
+
+[2022 개정 교육과정 — 교육부 NCIC]
+• 3수학[4수05-03] 꺾은선그래프 / 5실과[6실01-03] 에너지절약 / 6과학[6과10-01] 기후변화`;
+
+// ══════════════════════════════════════════════
+// DEMO CONTENT (API 연결 전 fallback)
+// ══════════════════════════════════════════════
+const PROBLEM_DEMOS = {
+"에너지":`🌱 생각 깨우기
 경북의 여름 기온이 25.6℃에서 27.1℃로 오르는 동안, 경북 학교들의 여름 전기 사용량도 308.8백만kWh에서 380.8백만kWh로 23.3%나 늘었어요. 더울수록 에어컨을 더 많이 켜기 때문이에요.
- 
+
 📊 탐구 문제
 1. 기온이 1℃ 오를 때마다 경북 학교들의 여름 전력이 약 4,650만 kWh 추가로 필요해요. 이 전기를 만들 때 나오는 CO₂는 몇 톤일까요? (1kWh = 0.4747kg CO₂)
-2. 경북 초등학교에서 에어컨 온도를 1도만 높이면 CO₂ 248톤을 줄일 수 있어요. 이것은 소나무 몇 그루가 1년 동안 흡수하는 양일까요? (소나무 1그루 = 10.8kg/년)
-3. 경북 학교의 신재생에너지 비율은 5.4%예요. 나머지 94.6%가 화석연료 전기라면, 여름 전력 증가분(72M kWh)을 모두 태양광으로 바꾸면 CO₂를 얼마나 줄일 수 있을까요?
- 
+2. 에어컨 온도를 1도만 높이면 CO₂ 248톤을 줄일 수 있어요. 소나무 22,995그루의 1년 흡수량이에요. 전교생이 함께하면 몇 그루 효과일까요?
+3. 경북 학교의 신재생에너지 비율은 5.4%예요. 나머지 94.6%가 화석연료라면 여름 전력 증가분을 어떻게 줄일 수 있을까요?
+
 🎯 실천 미션
 【에너지 절약 데이터 과학자】
 ① 학교 에어컨 사용 현황 1주 기록 → 절약 가능 시간 계산
 ② CO₂ 절감량 = 절약 전력(kWh) × 0.4747kg → 소나무 그루 환산
-③ 에너지 절약 서약 캠페인 + 학급별 절약 효과 비교`,
- 
-  '식물': `🌱 생각 깨우기
-경북 봉화의 백두대간수목원에는 4월이 되면 구상나무와 분비나무가 꽃을 피워요. 이 나무들은 우리나라에서만 자라는 특별한 고산 침엽수예요. 그런데 최근 산불과 기후변화로 이 나무들의 터전이 위협받고 있어요.
- 
+③ 에너지 절약 캠페인 포스터 + 학급별 효과 비교`,
+
+"기온전력":`🌱 생각 깨우기
+경북의 여름 기온이 2016년 25.6℃에서 2025년 27.1℃로 올랐어요. 딱 1.5℃인데, 이 차이가 학교에서 쓰는 전기에도 영향을 미쳤을까요?
+
 📊 탐구 문제
-1. 구상나무는 4월에 꽃을 피우는 한국 특산 침엽수예요. 경북 여름 기온이 1.5℃ 오른 지난 10년 동안, 고산에 사는 구상나무의 서식지는 어떻게 변했을까요?
-2. 2025년 경북 산불은 99,416ha를 태웠어요. 백두대간수목원의 구상나무·분비나무처럼 고산 침엽수가 많은 지역이 산불에 왜 더 취약할까요?
-3. 금강초롱꽃(8월 개화)과 단양쑥부쟁이(9월 개화)는 경북에서 자라는 멸종위기 2급 식물이에요. 기온이 계속 오르면 이 식물들에게 어떤 일이 생길까요?
- 
+1. 경북 여름 기온과 학교 전력사용량(2016~2025) 데이터를 꺾은선그래프 2개로 그려보세요. 두 선이 비슷한 방향으로 움직이나요?
+   기온: 25.6→27.1℃ / 전력: 308.8→380.8백만kWh
+2. 기온이 1℃ 오를 때마다 여름 전력이 약 4,650만 kWh 늘어난다고 해요. 기후변화로 여름이 1℃ 더 오른다면 CO₂는 얼마나 더 나올까요?
+3. 2020년 여름은 기온이 24.2℃로 낮았는데 전력은 311.9M kWh이었어요. 왜 예외적으로 기온이 낮았을까요? 이 해에 특별한 일이 있었나요?
+
+🎯 실천 미션
+【기온-전력 상관 탐정】
+① 2016~2025년 여름 기온·전력 꺾은선그래프 2개 작성 후 겹치기
+② "기온 1℃ = 전력 4,650만 kWh 증가" 실제 데이터로 검증
+③ 우리 학교 에너지 절약 목표 설정 → CO₂ 절감량 소나무 환산`,
+
+"산불":`🌱 생각 깨우기
+2025년 3월, 경북에서 시작된 대형 산불이 여의도의 342배인 99,416ha를 태웠어요. 경북 봉화 백두대간수목원의 구상나무와 금강초롱꽃이 사는 숲도 위협을 받았어요.
+
+📊 탐구 문제
+1. 백두대간수목원(경북 봉화)에서 4월에 피는 구상나무와 분비나무는 한국 특산 고산 침엽수예요. 99,416ha 산불이 이런 고산 숲에 번진다면 어떤 동식물이 사라질까요?
+2. 경북 여름 기온이 25.6→27.1℃로 1.5℃ 오른 것이 산불 위험과 어떤 관계가 있을까요? (경북 연간 산불위험기간 173일)
+3. 소실된 99,416ha 숲이 다시 자라는 데 30~50년이 걸려요. 흡수하지 못하는 CO₂는 얼마나 될까요? (소나무 1그루 = 10.8kg/년, ha당 약 1,000그루)
+
+🎯 실천 미션
+【산불 예방 캠페인단】
+① 경북 산불 원인 TOP3 조사 → 예방 포스터 제작
+② 산불 피해 지도 + 백두대간 희귀식물 분포 겹쳐 그리기
+③ "숲이 돌아오려면" 생태 복원 10년 계획 발표`,
+
+"폭염기온":`🌱 생각 깨우기
+2025년 경북의 폭염일수는 39.3일로 역대 1위를 기록했어요. 2016년 23.8일과 비교하면 15.5일이나 늘었어요. 경북의 여름, 10년 동안 얼마나 뜨거워졌는지 데이터로 살펴볼까요?
+
+📊 탐구 문제
+1. 경북 여름 평균기온이 25.6℃(2016)에서 27.1℃(2025)로 올랐어요. 기온이 오를수록 백두대간수목원 구상나무(4월 개화)의 서식지에 어떤 변화가 생길까요?
+2. 폭염일수가 23.8일에서 39.3일로 늘어나는 동안 학교 여름 전력도 308.8에서 380.8백만kWh로 늘었어요. 두 데이터의 관계를 그래프로 나타내보세요.
+3. 2025년 8월 경북 평균기온은 27.4℃였어요. 역대 최고 기온이 이어진다면 경북의 농업·생태계에 어떤 변화가 올까요?
+
+🎯 실천 미션
+【폭염 10년 탐구단】
+① 2016~2025년 폭염일수 막대그래프 + 기온 꺾은선 작성
+② "기온 1℃ 오르면 폭염일수는?" 추세 분석
+③ 학교 기후위기 신문: 10년 데이터로 보는 경북의 변화`,
+
+"식물":`🌱 생각 깨우기
+경북 봉화의 백두대간수목원에는 2월부터 10월까지 394종의 식물이 차례로 꽃을 피워요. 4월에는 한국 특산 침엽수인 구상나무가 꽃을 피우는데, 기후변화와 산불로 이 나무들의 터전이 위협받고 있어요.
+
+📊 탐구 문제
+1. 구상나무는 4월에 꽃을 피우는 한국 특산 고산 침엽수예요. 경북 여름 기온이 1.5℃ 오른 지난 10년, 고산에 사는 이 나무들의 서식지는 어떻게 달라졌을까요?
+2. 금강초롱꽃(8월)과 단양쑥부쟁이(9월)는 경북에서 자라는 멸종위기 2급 식물이에요. 기온이 계속 오르면 이 식물들의 꽃 피는 시기는 어떻게 바뀔까요?
+3. 봄꽃 개화 시기가 10년 전보다 빨라진다면, 꽃가루를 옮기는 곤충과의 시기가 어긋나 어떤 문제가 생길까요?
+
 🎯 실천 미션
 【백두대간 식물 수호대】
 ① 이달 백두대간수목원 개화 식물 5종 조사 → 서식지 특징 정리
 ② 산불 피해 구역 지도 + 희귀식물 분포 지도 겹쳐 그리기
 ③ "이 식물을 지키는 방법" 환경 보전 계획서 작성`,
- 
-  '산불': `🌱 생각 깨우기
-2025년 3월, 경북에서 시작된 대형 산불이 여의도의 342배인 99,416ha를 태웠어요. 경북 봉화 백두대간수목원의 구상나무와 금강초롱꽃이 살던 숲도 위험에 처했어요.
- 
+
+"사과":`🌱 생각 깨우기
+경북은 대한민국 사과 생산의 60%를 차지해요. 그런데 농촌진흥청은 2090년이 되면 경북에서 사과를 키울 수 있는 땅의 97%가 사라진다고 예측했어요. 경북의 여름 기온이 27.1℃까지 오른 지금, 왜일까요?
+
 📊 탐구 문제
-1. 백두대간수목원(경북 봉화)에서 4월에 피는 구상나무와 분비나무는 고산 침엽수예요. 99,416ha의 산불이 이런 고산 숲에까지 번진다면 어떤 동식물이 사라질 위기에 처할까요?
-2. 경북 여름 기온이 25.6℃에서 27.1℃로 1.5℃ 오른 것이 산불 발생과 어떤 관계가 있을까요? (경북 연간 산불위험기간 173일, 1.5℃ 더 오르면 233일로 증가)
-3. 소실된 99,416ha 숲이 다시 자라는 데 30~50년이 걸려요. 이 기간 동안 흡수하지 못하는 CO₂는 얼마나 될까요? (소나무 1그루 = 10.8kg/년, ha당 약 1,000그루)
- 
-🎯 실천 미션
-【산불 예방 캠페인단】
-① 경북 산불 원인 TOP3 조사 → 예방 포스터 제작
-② 우리 동네 산림 지도 그리기 → 위험 구역 표시
-③ "숲이 돌아오려면" 생태 복원 10년 계획 발표`,
- 
-  '사과': `🌱 생각 깨우기
-경북은 대한민국 사과 생산의 60%를 차지하는 사과의 고향이에요. 그런데 농촌진흥청은 2090년이 되면 경북에서 사과를 키울 수 있는 땅의 97%가 사라진다고 예측했어요. 왜일까요?
- 
-📊 탐구 문제
-1. 사과는 일정한 겨울 추위(저온 요구도)가 있어야 달콤하게 자라요. 경북 여름 기온이 27.1℃까지 오르고 겨울이 따뜻해지면 사과 재배에 어떤 문제가 생길까요?
-2. 2016년 경북 폭염일수 23.8일에서 2025년 39.3일로 늘어났어요. 폭염이 이렇게 길어지면 사과 수확량은 어떻게 달라질까요?
-3. 사과 재배적지가 북쪽으로 이동한다면, 경북 사과 농가들은 어떤 작물로 바꿀 수 있을까요? 우리 지역의 미래 농업을 그려보세요.
- 
+1. 사과는 일정한 겨울 추위(저온 요구도)가 있어야 달콤하게 자라요. 경북 여름 기온이 27.1℃까지 오르고 2024년 연평균기온이 14.5℃로 역대 최고가 됐다면 사과 재배에 어떤 문제가 생길까요?
+2. 폭염일수가 23.8일에서 39.3일로 늘었어요. 이렇게 폭염이 길어지면 사과 나무에게는 어떤 영향이 있을까요?
+3. 사과 재배적지가 북쪽으로 이동한다면, 경북 농가들은 어떤 작물로 바꿀 수 있을까요?
+
 🎯 실천 미션
 【사과 재배지 변화 탐구】
-① 마트에서 사과 원산지 조사 → 경북산 비율 막대그래프 작성
+① 마트에서 사과 원산지 조사 → 경북산 비율 막대그래프
 ② 2090년 사과 재배 가능 지도 그리기 → 현재와 비교
-③ 기후변화 속 우리 지역 농업 변화 신문 만들기`,
- 
-  '탄소': `🌱 생각 깨우기
-우리 반 26명이 4주 동안 분리배출을 열심히 하면 소나무 2그루가 1년 동안 흡수하는 만큼의 CO₂를 줄일 수 있어요. 작은 실천이 모이면 정말 숲을 만들 수 있을까요?
- 
+③ 기후변화 속 우리 지역 농업 미래 신문 만들기`,
+
+"탄소":`🌱 생각 깨우기
+경북의 여름 기온이 1.5℃ 오르는 동안 학교 전력 사용량도 23.3% 늘었어요. 에어컨을 1도만 높여도 CO₂ 248톤을 줄일 수 있다는 사실, 알고 있었나요?
+
 📊 탐구 문제
-1. 경북 학교에서 에어컨 온도를 1도만 높이면 CO₂ 248톤을 줄일 수 있어요. 소나무 22,995그루의 1년 흡수량이에요. 전교생이 참여하면 몇 그루 효과일까요?
-2. 경북의 여름 전력 증가분(308.8→380.8백만kWh, +72M)을 모두 줄인다면 CO₂를 얼마나 감축할 수 있을까요? (1kWh = 0.4747kg CO₂)
-3. 분리배출로 줄이는 CO₂와 에어컨 절약으로 줄이는 CO₂ 중 어느 쪽 효과가 더 클까요? 둘을 비교하는 계산을 해보세요.
- 
+1. 에어컨 온도 1도 높이기 = CO₂ 248톤 절감 = 소나무 22,995그루 효과예요. 우리 학교 전체가 함께하면 몇 그루 효과일까요?
+2. 경북 학교의 여름 전력 증가분(+72M kWh)을 모두 절약하면 CO₂를 얼마나 감축할 수 있을까요? (1kWh = 0.4747kg CO₂)
+3. 분리배출로 줄이는 CO₂와 에어컨 절약으로 줄이는 CO₂, 어느 쪽 효과가 더 클까요?
+
 🎯 실천 미션
 【탄소 계산 데이터 과학자】
-① 우리 반 1주일 분리배출량 측정 → CO₂ 절감 계산 → 소나무 환산
+① 우리 반 1주일 분리배출량 측정 → CO₂ 절감 계산
 ② 에어컨 절약 주간 실천 → 절전량 측정 → CO₂ 비교
-③ 두 실천의 효과를 막대그래프로 비교하여 발표`,
- 
-  '멸종위기': `🌱 생각 깨우기
-경북에는 금강초롱꽃, 단양쑥부쟁이처럼 이 세상 어디에도 없는 우리나라 특산 멸종위기 식물이 살고 있어요. 경북 기온이 매년 오르고 산불이 번지면서 이 식물들이 위험해지고 있어요.
- 
+③ 두 실천의 효과 막대그래프로 비교 발표`,
+
+"멸종위기":`🌱 생각 깨우기
+경북에는 금강초롱꽃, 단양쑥부쟁이처럼 우리나라에서만 자라는 멸종위기 식물이 살고 있어요. 경북 기온이 매년 오르고 산불이 번지면서 이 식물들이 위험해지고 있어요.
+
 📊 탐구 문제
-1. 전국 멸종위기 야생생물 282종 중 상당수가 경북에 서식해요. 경북 여름 기온이 25.6℃에서 27.1℃로 오른 것이 고산 식물인 금강초롱꽃(8월 개화)의 서식지에 어떤 영향을 줄까요?
-2. 2025년 경북 산불이 태운 99,416ha에는 백두대간수목원의 구상나무·분비나무 서식지가 포함될 수 있어요. 한 번 사라진 멸종위기종은 왜 되돌아오기 어려울까요?
-3. 낙동강 수생태계 A등급 비율이 2020년 14.4%에서 2023년 10.2%로 떨어졌어요. 수생태계가 나빠지면 어떤 생물이 가장 먼저 사라질까요?
- 
+1. 전국 멸종위기 야생생물 중 282종이 경북에 서식해요. 경북 여름 기온이 27.1℃까지 오른 것이 금강초롱꽃(8월 개화, 멸종위기2급)의 서식지에 어떤 영향을 줄까요?
+2. 2025년 산불이 태운 99,416ha에는 구상나무·분비나무 서식지가 포함될 수 있어요. 한 번 사라진 멸종위기종은 왜 되돌아오기 어려울까요?
+3. 낙동강 수생태계 A등급 비율이 2020년 14.4%에서 2023년 10.2%로 떨어졌어요. 수생태계가 나빠지면 어떤 생물이 먼저 사라질까요?
+
 🎯 실천 미션
 【멸종위기종 수호대】
-① 경북 서식 멸종위기 식물 5종 조사 → 특징·서식지 정리
-② "만약 이 식물이 사라진다면?" 먹이사슬 변화 그리기
+① 경북 서식 멸종위기 식물 5종 조사 → 서식지·특징 정리
+② "이 식물이 사라진다면?" 먹이사슬 변화 그리기
 ③ 우리 학교 주변 생물다양성 지도 만들기`
 };
- 
-// ═══ GENERATE PROBLEM ═══
-async function genProblem(){
-  const btn=document.getElementById('gbtn');
-  const sp=document.getElementById('gsp');
-  const out=document.getElementById('out1');
-  const cp=document.getElementById('cp1');
-  btn.disabled=true; btn.classList.add('loading');
-  sp.style.display='block'; out.classList.remove('lit');
-  out.innerHTML='<div style="color:var(--dim);font-size:12px;padding:18px 0;text-align:center">AI가 탐구 문제를 생성 중입니다…</div>';
-  cp.classList.remove('show');
- 
-  const up=`학년: ${CTX.grade}학년 / 교과: ${CTX.subject} / 키워드: ${CTX.kw}\nSSIBL 3단계 탐구 문제를 생성하세요.`;
-  try{
-    const r=await fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({systemPrompt:SYS,userPrompt:up,grade:CTX.grade,subject:CTX.subject,keyword:CTX.kw})});
+
+// PBL 미션 — STATE.problemText 기반 연계 생성
+function getPBLContent(grade, subject, kw) {
+  const kwLabel = (KW_META[kw]||{}).label || kw;
+  const gradeNum = grade.replace("학년","");
+  const stars = {"1-2":"⭐","3":"⭐⭐","4":"⭐⭐","5":"⭐⭐⭐","6":"⭐⭐⭐"}[gradeNum] || "⭐⭐";
+
+  // 1번 탐구문제에서 핵심 질문 추출
+  const prob = STATE.problemText;
+  let extractedQ = "";
+  if(prob) {
+    const lines = prob.split("\n").filter(l=>l.trim());
+    const qIdx = lines.findIndex(l=>l.includes("탐구 문제") || l.includes("탐구문제"));
+    if(qIdx >= 0 && lines[qIdx+1]) {
+      extractedQ = lines[qIdx+1].replace(/^[0-9\.\s]+/,"").slice(0,80);
+    }
+  }
+
+  // 키워드별 미션 템플릿 (탐구문제 내용 반영)
+  const templates = {
+    "에너지": {
+      mission: "학교 에너지 절약 데이터 과학자",
+      link: extractedQ ? `탐구문제에서 살펴본 "${extractedQ.slice(0,40)}..." 내용을 바탕으로` : "기온과 전력사용량 데이터를 바탕으로",
+      steps: ["에어컨 사용 현황 1주일 기록 → 절약 가능 시간 계산","절약 전력(kWh) × 0.4747 = CO₂ 절감(kg) → 소나무 22,995그루 환산","학급 에너지 절약 서약 + 주간 실천 → 효과 발표"],
+      co2: "에어컨 1도 = <strong>소나무 22,995그루</strong> 1년 흡수량"
+    },
+    "기온전력": {
+      mission: "기온-전력 상관관계 탐정",
+      link: extractedQ ? `"${extractedQ.slice(0,40)}..." 탐구를 이어서` : "기온·전력 데이터를 교차 분석하여",
+      steps: ["연도별 여름 기온·전력 데이터표 작성 (2016~2025)","꺾은선그래프 2개 겹쳐 그리기 → 상관관계 시각화",""기온 1℃ = 전력 4,650만 kWh" 가설 검증 발표"],
+      co2: "기온 1℃ 상승 = 전력 <strong>4,650만 kWh</strong> 추가 소비"
+    },
+    "산불": {
+      mission: "산불 예방 캠페인단",
+      link: extractedQ ? `탐구에서 알아본 "${extractedQ.slice(0,40)}..." 내용으로` : "산불과 생태계 영향 데이터로",
+      steps: ["경북 산불 원인 TOP3 조사 → 예방 수칙 포스터 제작","피해 지도 + 백두대간 희귀식물 분포 겹쳐 그리기",""숲이 돌아오려면" 10년 복원 계획 발표"],
+      co2: "99,416ha 숲 소실 = CO₂ <strong>약 10억 kg</strong> 흡수 기회 상실"
+    },
+    "폭염기온": {
+      mission: "폭염 10년 변화 탐구단",
+      link: extractedQ ? `탐구문제의 "${extractedQ.slice(0,40)}..." 를 검증하기 위해` : "폭염일수·기온 데이터로",
+      steps: ["2016~2025년 폭염일수 막대 + 기온 꺾은선 복합 그래프 작성","추세선 그려서 미래 기온 예측해보기","학교 기후위기 신문 '경북 10년의 변화' 제작"],
+      co2: "폭염 1일 증가 = 전력 <strong>465만 kWh</strong> 추가 소비"
+    },
+    "식물": {
+      mission: "백두대간 식물 수호대",
+      link: extractedQ ? `탐구에서 알아본 "${extractedQ.slice(0,40)}..." 를 현장에서 확인하여` : "백두대간수목원 개화 데이터로",
+      steps: ["이달 개화 식물 5종 선정 → 서식지·특징 조사","산불 피해 지도 + 희귀식물 분포 겹쳐 그리기",""이 식물을 지키는 방법" 환경 보전 계획서 작성 + 발표"],
+      co2: "금강초롱꽃 · 단양쑥부쟁이 — 경북 <strong>멸종위기 2급</strong> 특산식물"
+    },
+    "사과": {
+      mission: "사과 재배지 변화 탐구",
+      link: extractedQ ? `탐구에서 본 "${extractedQ.slice(0,40)}..." 내용을 실제로 확인하며` : "기온 변화와 사과 재배 데이터로",
+      steps: ["마트에서 사과 원산지 조사 → 경북산 비율 막대그래프 작성","2090년 재배 가능 지도 그리기 → 현재와 비교","우리 지역 미래 농업 신문 만들기"],
+      co2: "2090년 경북 사과재배 가능 면적 <strong>97% 소멸</strong> 예측"
+    },
+    "탄소": {
+      mission: "탄소 절감 계산 과학자",
+      link: extractedQ ? `탐구문제의 "${extractedQ.slice(0,40)}..." 를 실천으로 연결하여` : "CO₂ 절감 데이터를 직접 계산하며",
+      steps: ["우리 반 1주일 분리배출량 측정 → CO₂ 절감 계산 → 소나무 환산","에어컨 절약 주간 실천 → 절전량 측정 → CO₂ 비교","두 실천의 효과 막대그래프로 비교 발표"],
+      co2: "에어컨 1도 vs 분리배출, <strong>어느 쪽이 더 효과적</strong>일까?"
+    },
+    "멸종위기": {
+      mission: "멸종위기종 수호대",
+      link: extractedQ ? `탐구에서 알아본 "${extractedQ.slice(0,40)}..." 를 이어서` : "경북 멸종위기 야생생물 데이터로",
+      steps: ["경북 서식 멸종위기 식물 5종 → 서식지·특징 정리",""이 식물이 사라진다면?" 먹이사슬 변화 그리기","학교 주변 생물다양성 지도 + 보전 방안 제안"],
+      co2: "경북 멸종위기 야생생물 <strong>282종</strong>, 기온 상승으로 위협 증가"
+    }
+  };
+
+  const t = templates[kw] || templates["에너지"];
+  return `【${grade} · ${subject} · ${kwLabel} — PBL 실천 미션】
+
+${stars} 미션명: ${t.mission}
+
+▪ 연결 배경
+${t.link} ${grade} 수준에 맞는 실천 프로젝트를 진행합니다.
+
+▪ 단계별 실천
+① ${t.steps[0]}
+② ${t.steps[1]}
+③ ${t.steps[2]}
+
+▪ 탄소저감 연계
+${t.co2}
+
+▪ 뱃지 목표 (숲잇다 시스템)
+실천 완료 시: 🌱 새싹 뱃지 → 3회 달성 시 🌲 나무 뱃지 획득`;
+
+}
+
+
+// 수업안 내용 생성 — STATE 전체 연계
+function getRecordContent(grade, subject, kw) {
+  const meta = KW_META[kw] || {};
+  const topic = STATE.problemText
+    ? extractTopic(STATE.problemText)
+    : `${grade} ${subject} — ${meta.label||kw} 탐구`;
+
+  // 1번 탐구문제에서 핵심 질문 추출
+  let q1="", q2="", q3="";
+  if(STATE.problemText) {
+    const lines = STATE.problemText.split("\n").filter(l=>l.trim());
+    const qIdx = lines.findIndex(l=>l.includes("탐구 문제")||l.includes("탐구문제"));
+    if(qIdx>=0) {
+      q1 = (lines[qIdx+1]||"").replace(/^[0-9\.\s]+/,"").slice(0,60);
+      q2 = (lines[qIdx+2]||"").replace(/^[0-9\.\s]+/,"").slice(0,60);
+    }
+  }
+
+  // 2번 PBL에서 실천 단계 추출
+  let pbl1="", pbl2="";
+  if(STATE.pblText) {
+    const plines = STATE.pblText.split("\n").filter(l=>l.trim());
+    const s1 = plines.find(l=>l.startsWith("①"));
+    const s2 = plines.find(l=>l.startsWith("②"));
+    pbl1 = s1 ? s1.replace("①","").trim().slice(0,50) : "";
+    pbl2 = s2 ? s2.replace("②","").trim().slice(0,50) : "";
+  }
+
+  return `【1차시 수업안 — ${grade} / ${subject} / ${meta.label||kw}】
+
+▪ 수업 주제: ${topic}
+▪ 활용 데이터: ${meta.data||"경북 환경 공공데이터"}
+▪ 학습 목표: ${meta.goal||"환경 데이터를 탐구하고 설명할 수 있다"}
+
+[도입 5분]
+${q1 ? `"${q1}" 탐구 문제로 수업 시작` : "오늘의 탐구 문제 제시 → 데이터로 무엇을 알 수 있을까?"}
+학생 사전 생각 공유 (3분) → 오늘 탐구 방향 안내 (2분)
+
+[전개 30분]
+① 핵심 데이터 확인 및 그래프 작성 (10분)
+   ${q2 ? q2 : "공공데이터 수치 확인 → 표·그래프 작성"}
+② 모둠별 탐구 토의 (10분)
+   ${pbl1 ? pbl1 : "데이터 해석 → 원인·결과 분석"}
+③ 실천 계획 수립 (10분)
+   ${pbl2 ? pbl2 : "PBL 실천 미션 단계 확인 → 역할 분담"}
+
+[정리 10분]
+탐구 결과 발표 + 실천 서약서 작성 + 숲잇다 뱃지 목표 설정`;
+}
+
+
+// ══════════════════════════════════════════════
+// GENERATE FUNCTIONS
+// ══════════════════════════════════════════════
+async function genProblem() {
+  const btn=document.getElementById("gbtn"), sp=document.getElementById("gsp");
+  const out=document.getElementById("out1"), cp=document.getElementById("cp1");
+  btn.disabled=true; btn.classList.add("loading"); sp.style.display="block";
+  out.classList.remove("lit");
+  out.innerHTML=`<div class="placeholder">🌱 AI가 탐구 문제를 생성 중입니다…</div><button class="copybtn" id="cp1" onclick="doCopy('out1')">📋 복사</button>`;
+  document.getElementById("next1")?.classList.remove("show");
+
+  const up = `학년: ${STATE.grade} / 교과: ${STATE.subject} / 키워드: ${STATE.kw}
+SSIBL 3단계(①생각깨우기 ②탐구문제 ③실천미션) 형식으로 생성하세요.`;
+  let txt = "";
+  try {
+    const r=await fetch("/api/generate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({systemPrompt:SYS,userPrompt:up,grade:STATE.grade,subject:STATE.subject,keyword:STATE.kw})});
     if(!r.ok) throw new Error();
     const d=await r.json();
-    const txt=d.content?.[0]?.text||d.result||'생성 실패';
-    out.classList.add('lit'); streamText(out,txt,cp);
-  } catch{
-    const txt=DEMOS[CTX.kw]||DEMOS['에너지'];
-    out.classList.add('lit'); streamText(out,txt,cp);
-  } finally{
-    btn.disabled=false; btn.classList.remove('loading'); sp.style.display='none';
+    txt = d.content?.[0]?.text || d.result || "";
+    if(!txt) throw new Error();
+  } catch {
+    txt = PROBLEM_DEMOS[STATE.kw] || PROBLEM_DEMOS["에너지"];
   }
+
+  STATE.problemText = txt;
+  STATE.step1Done = true;
+  out.classList.add("lit");
+  streamText(out, txt, document.getElementById("cp1"));
+  document.getElementById("next1")?.classList.add("show");
+  // 2,3번 자동 필드 업데이트
+  updateBanner();
+  // 2번 결과 자동 업데이트 (이미 생성된 경우)
+  STATE.pblText = "";
+  STATE.step2Done = false;
+  btn.disabled=false; btn.classList.remove("loading"); sp.style.display="none";
+  updateStepBadges();
 }
- 
-// ═══ GENERATE RECORD ═══
-async function genRecord(){
-  const topic=document.getElementById('rtopic').value||'경북 기온 상승과 학교 전력사용량의 관계';
-  const data=document.getElementById('rdata').value;
-  const goal=document.getElementById('rgoal').value||'기후변화와 에너지 소비의 관계를 데이터로 설명할 수 있다';
-  const out=document.getElementById('outrec'); const cp=document.getElementById('cprec');
-  out.innerHTML='<div style="color:var(--dim);font-size:12px;padding:18px 0;text-align:center">수업안 생성 중…</div>';
-  cp.classList.remove('show');
-  await new Promise(r=>setTimeout(r,600));
-  const rec=`【1차시 수업안】
-▪ 단원: ${topic}
-▪ 데이터: ${data}
-▪ 목표: ${goal}
- 
-[도입 5분]
-경북 여름 기온·전력 그래프 제시 → "2016년과 2025년, 무엇이 달라졌을까?"
- 
-[전개 30분]
-① 기온(25.6→27.1℃)·전력(309→381M kWh) 꺾은선 작성
-② "기온 1℃ = 전력 4,650만 kWh 추가" 계산 실습
-③ 에어컨 1도 = CO₂ 248톤 = 소나무 22,995그루 환산
- 
-[정리 10분]
-에너지 절약 실천 서약서 + 우리 반 목표 선언`;
- 
-  out.classList.add('lit'); streamText(out,rec,cp);
-  document.getElementById('lhi').value='경북 기온 상승(+1.5℃)과 학교 전력사용량 증가(+23.3%)의 상관관계를 실제 공공데이터로 분석하고, 에어컨 절약 실천의 CO₂ 감축 효과를 소나무 그루 수로 정량화하여 논리적으로 발표함.';
-  document.getElementById('lmd').value='기온 상승이 학교 전력 소비에 영향을 미침을 이해하고, 에어컨 온도 1도 절약이 환경에 미치는 효과를 계산하여 설명함.';
-  document.getElementById('llo').value='더울수록 에어컨을 많이 켜면 전기가 더 필요하다는 것을 알고, 절약이 환경 보호에 도움이 됨을 이해함.';
+
+async function genPBL() {
+  const out=document.getElementById("out-pbl"), cp=document.getElementById("cp-pbl");
+  if(!out) return;
+  out.innerHTML=`<div class="placeholder">⭐ ${STATE.grade} ${STATE.kw} PBL 미션 생성 중…</div><button class="copybtn" id="cp-pbl" onclick="doCopy('out-pbl')">📋 복사</button>`;
+
+  await new Promise(r=>setTimeout(r,300));
+
+  let txt = "";
+  try {
+    const up=`학년: ${STATE.grade} / 교과: ${STATE.subject} / 키워드: ${STATE.kw}
+탐구문제 내용: ${STATE.problemText.slice(0,400)}
+위 내용과 연결되는 PBL 실천미션을 단계별로 구성하세요. CO₂ 계산 포함.`;
+    const r=await fetch("/api/generate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({systemPrompt:SYS,userPrompt:up})});
+    if(!r.ok) throw new Error();
+    const d=await r.json();
+    txt = d.content?.[0]?.text || d.result || "";
+    if(!txt) throw new Error();
+  } catch {
+    txt = getPBLContent(STATE.grade, STATE.subject, STATE.kw);
+  }
+
+  STATE.pblText = txt;
+  STATE.step2Done = true;
+  out.classList.add("lit");
+  streamText(out, txt, document.getElementById("cp-pbl"));
+  document.getElementById("next2")?.classList.add("show");
+  updateStepBadges();
 }
- 
-// ═══ STREAM TEXT ═══
-function streamText(box,text,cp){
-  box.innerHTML='';
-  const pre=Object.assign(document.createElement('pre'),{style:'white-space:pre-wrap;font-family:inherit;font-size:13px;line-height:1.85;margin:0'});
+
+async function genRecord() {
+  const out=document.getElementById("outrec"), cp=document.getElementById("cprec");
+  if(!out) return;
+  if(out.dataset.loading === "1") return; // 중복 실행 방지
+  out.dataset.loading = "1";
+  out.classList.remove("lit");
+  out.innerHTML=`<div class="placeholder">✨ ${STATE.grade} · ${STATE.subject} · ${(KW_META[STATE.kw]||{}).label||STATE.kw} 수업안 생성 중…</div><button class="copybtn" id="cprec" onclick="doCopy('outrec')">📋 복사</button>`;
+
+  await new Promise(r=>setTimeout(r,500));
+
+  let txt = "";
+  try {
+    const up=`학년: ${STATE.grade} / 교과: ${STATE.subject} / 키워드: ${STATE.kw}
+탐구문제: ${STATE.problemText.slice(0,300)}
+PBL미션: ${STATE.pblText.slice(0,200)}
+위 내용을 바탕으로 1차시 수업안과 생기부 상중하 3수준을 생성하세요.`;
+    const r=await fetch("/api/generate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({systemPrompt:SYS,userPrompt:up})});
+    if(!r.ok) throw new Error();
+    const d=await r.json();
+    txt = d.content?.[0]?.text || d.result || "";
+    if(!txt) throw new Error();
+  } catch {
+    txt = getRecordContent(STATE.grade, STATE.subject, STATE.kw);
+  }
+
+  STATE.step3Done = true;
+  out.dataset.loading = "0";
+  out.classList.add("lit");
+  streamText(out, txt, document.getElementById("cprec"));
+
+  // 생기부 자동 채우기 — 탐구문제·PBL 내용 반영
+  const kw = STATE.kw; const g = STATE.grade; const s = STATE.subject;
+  const meta = KW_META[kw] || {};
+  // 1번 탐구 핵심어 추출
+  const prob = STATE.problemText;
+  let probKeyword = meta.label || kw;
+  if(prob) {
+    const m = prob.match(/📊 탐구 문제[\s\S]*?
+(.+)/);
+    if(m) probKeyword = m[1].replace(/^[0-9\.\s]+/,"").slice(0,30);
+  }
+  document.getElementById("lhi").value=`${g} ${s} 수업에서 경북 공공데이터를 활용하여 ${probKeyword} 관련 탐구 문제를 스스로 분석하고, 실천 미션을 통해 CO₂ 절감 효과를 정량적으로 계산하여 논리적으로 발표함. 데이터의 출처와 의미를 명확히 이해하고 환경 문제 해결에 적극적으로 참여함.`;
+  document.getElementById("lmd").value=`${g} ${s} 수업에서 경북 환경 공공데이터를 바탕으로 ${meta.label||kw}의 변화 추세를 이해하고, 실천 미션에 참여하여 생활 속 환경 보호 방법을 설명할 수 있음.`;
+  document.getElementById("llo").value=`${g} ${s} 수업에서 경북의 기후 변화 데이터를 통해 환경 문제의 심각성을 인식하고, 에너지 절약 등 기초적인 실천 방법이 환경 보호에 도움이 됨을 이해함.`;
+  updateStepBadges();
+}
+
+// ══════════════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════════════
+function streamText(box, text, cp) {
+  box.innerHTML = "";
+  const pre=Object.assign(document.createElement("pre"),{style:"white-space:pre-wrap;font-family:inherit;font-size:15px;line-height:2;margin:0"});
   box.appendChild(pre);
-  if(cp){ cp.classList.add('show'); box.appendChild(cp); }
+  if(cp){cp.classList.add("show");box.appendChild(cp);}
   let i=0;
-  const iv=setInterval(()=>{ if(i<text.length){pre.textContent+=text[i];i+=4;} else{pre.textContent=text;clearInterval(iv);} },7);
+  const iv=setInterval(()=>{if(i<text.length){pre.textContent+=text[i];i+=4;}else{pre.textContent=text;clearInterval(iv);}},7);
 }
- 
-// ═══ COPY ═══
 function doCopy(id){
-  const t=document.getElementById(id).querySelector('pre')?.textContent||'';
-  navigator.clipboard.writeText(t).then(()=>{
-    const b=document.getElementById(id).querySelector('.copybtn');
-    if(b){b.textContent='✓ 복사됨';setTimeout(()=>b.textContent='복사',1500);}
-  });
+  const t=document.getElementById(id)?.querySelector("pre")?.textContent||"";
+  navigator.clipboard.writeText(t).then(()=>{const b=document.getElementById(id)?.querySelector(".copybtn");if(b){b.textContent="✓ 복사됨";setTimeout(()=>b.textContent="📋 복사",1500);}});
 }
- 
-// ═══ CO₂ CALCULATOR ═══
 function calcCO2(){
-  const n=+document.getElementById('stu').value||26;
-  const w=+document.getElementById('wk').value||4;
-  const t=document.getElementById('ptype').value;
-  let co2;
-  if(t==='recycle') co2=n*w*0.225;
-  else if(t==='energy') co2=248*(w/52);
-  else co2=n*w*2.5*0.2;
-  document.getElementById('co2r').textContent=co2.toFixed(1);
-  const pine=(t==='energy')?`🌲 소나무 ${(co2*1000/10.8).toFixed(0)}그루 효과`:`🌲 소나무 ${(co2/10.8).toFixed(1)}그루 효과`;
-  document.getElementById('piner').textContent=pine;
+  const n=+document.getElementById("stu").value||26,w=+document.getElementById("wk").value||4,t=document.getElementById("ptype").value;
+  let co2=(t==="recycle")?n*w*0.225:(t==="energy")?248*(w/52):n*w*0.5;
+  document.getElementById("co2r").textContent=co2.toFixed(1);
+  document.getElementById("piner").textContent=(t==="energy")?`🌲 소나무 ${(co2*1000/10.8).toFixed(0)}그루 효과`:`🌲 소나무 ${(co2/10.8).toFixed(1)}그루 효과`;
 }
 calcCO2();
- 
-// ═══ DUAL CHART (기온 + 전력) ═══
-function buildDualChart(){
-  const yrs=[2016,2017,2018,2019,2020,2021,2022,2023,2024,2025];
-  const maxT=28, minT=24, maxE=400, minE=300;
-  const container=document.getElementById('dual-chart');
-  container.innerHTML='';
-  yrs.forEach(y=>{
-    const t=SUMMER_TEMP[y], e=SUMMER_ELEC[y];
-    if(!t||!e) return;
-    const tPct=Math.round((t-minT)/(maxT-minT)*100);
-    const ePct=Math.round((e-minE)/(maxE-minE)*100);
-    const row=document.createElement('div'); row.className='dc-row';
-    row.innerHTML=`<div class="dc-yr">${y}</div>
-<div class="dc-bars">
-  <div class="dc-bar" style="width:${tPct}%;background:#E87F6A;flex:none"></div>
-  <div style="width:3px"></div>
-  <div class="dc-bar" style="width:${ePct}%;background:#4A9E73;flex:none"></div>
-</div>
-<div class="dc-vals">${t}℃ / ${e}M</div>`;
-    container.appendChild(row);
-  });
-}
-buildDualChart();
- 
-// ═══ MONTHLY TEMP BARS (2025) ═══
-function buildTempBars(){
-  const months=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
-  const el=document.getElementById('temp-bars');
-  if(!el) return;
-  el.innerHTML='';
-  months.forEach((m,i)=>{
-    const t=MONTHLY_TEMP_2025[i+1];
-    if(t===undefined) return;
-    const isSum=(i>=6&&i<=8);
-    const pct=Math.max(0,Math.min(100,((t+5)/(35))*100));
-    const color=isSum?'#E87F6A':t>15?'#D4A843':t>0?'#4A9E73':'#86C9A4';
-    const row=document.createElement('div'); row.style.cssText='display:flex;align-items:center;gap:5px;margin-bottom:3px';
-    row.innerHTML=`<div style="font-size:9px;color:var(--dim);width:22px;flex-shrink:0">${m}</div>
-<div style="flex:1;height:9px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden">
-  <div style="width:${pct}%;height:100%;background:${color};border-radius:2px"></div>
-</div>
-<div style="font-size:9px;color:${color};width:32px;text-align:right;font-family:'DM Mono',monospace">${t}℃</div>`;
-    el.appendChild(row);
-  });
-}
-buildTempBars();
- 
-// ═══ THIS MONTH FLOWER ═══
+function openModal(){document.getElementById("dataModal").classList.add("open")}
+function closeModal(){document.getElementById("dataModal").classList.remove("open")}
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal()});
+
+// ══════════════════════════════════════════════
+// CHARTS & VISUAL
+// ══════════════════════════════════════════════
 (()=>{
-  const m=new Date().getMonth()+1;
-  const el=document.getElementById('this-month-flower');
-  const plants=FLOWER_DATA[m];
-  if(plants&&plants.length){
-    el.innerHTML=`<div style="color:var(--gold);font-size:10px;margin-bottom:5px">${m}월 현재 경북 봉화 개화 중</div>
-<div style="color:var(--white);font-size:12px;font-weight:600;margin-bottom:4px">${plants.slice(0,3).join(' · ')}</div>
-<div style="font-size:10px">등 ${plants.length}종이 백두대간수목원에서 피어 있어요.<br>총 394종 중 이달의 식물을 직접 관찰해보세요.</div>`;
-  } else {
-    el.innerHTML=`<div style="font-size:10px">1월은 개화 식물이 없는 시기예요.<br>2월 개복수초와 풍년화를 기다리는 계절입니다.</div>`;
+  // 듀얼 차트
+  const yrs=[2016,2017,2018,2019,2020,2021,2022,2023,2024,2025];
+  const c=document.getElementById("dual-chart");
+  if(c){
+    c.innerHTML="";
+    yrs.forEach(y=>{
+      const t=SUMMER_TEMP[y],e=SUMMER_ELEC[y];if(!t||!e)return;
+      const tP=Math.round((t-24)/(28-24)*100);
+      const eP=Math.round((e-300)/(400-300)*100);
+      const hi=(y>=2024);
+      const row=document.createElement("div");row.className="dc-row";
+      row.innerHTML=`<div class="dc-yr">${y}</div><div class="dc-bars"><div class="dc-bar" style="width:${tP}%;background:${hi?"#E87F6A":"#c4705e"}"></div><div class="dc-bar" style="width:${eP}%;background:${hi?"#4A9E73":"#3a7d5a"}"></div></div><div class="dc-val" style="color:${hi?"#D4A843":"rgba(255,255,255,.45)"}">${t}℃/${e}M</div>`;
+      c.appendChild(row);
+    });
   }
+  // 월별 기온 바
+  const M=MONTHLY_TEMP["2025"];
+  const labels=["1월","2월","3월","4월","5월","6월","7월","8월","9월","10월","11월","12월"];
+  const el=document.getElementById("temp-bars");
+  if(el){
+    el.innerHTML="";
+    labels.forEach((lbl,i)=>{
+      const t=M[i+1];if(t===undefined)return;
+      const pct=Math.max(0,Math.min(100,((t+5)/35)*100));
+      const color=(i>=6&&i<=8)?"#E87F6A":t>15?"#D4A843":t>0?"#4A9E73":"#86C9A4";
+      const row=document.createElement("div");row.className="mb-row";
+      row.innerHTML=`<div class="mb-lbl">${lbl}</div><div class="mb-track"><div class="mb-fill" style="width:${pct}%;background:${color}"></div></div><div class="mb-val" style="color:${color}">${t}℃</div>`;
+      el.appendChild(row);
+    });
+  }
+  // 이달의 식물
+  const m=new Date().getMonth()+1;
+  const flEl=document.getElementById("flower-now");
+  if(flEl){
+    const plants=FLOWER_DATA[m];
+    if(plants&&plants.length)
+      flEl.innerHTML=`<span style="color:#D4A843;font-size:13px">${m}월 현재 개화 중 · 경북 봉화</span><br><span style="color:#fff;font-size:15px;font-weight:600">${plants.slice(0,3).join(" · ")}</span><br>등 ${plants.length}종`;
+    else flEl.textContent="1월은 개화 식물이 없는 계절입니다.";
+  }
+  // 초기 배너 동기화
+  updateBanner();
 })();
 </script>
 </body>
