@@ -739,22 +739,31 @@ pre {
 
 <div class="side"><div class="side-inner">
   <div class="side-title">⚡ CO₂ 절감 계산기</div>
-  <div style="display:grid;gap:12px;margin-bottom:16px">
+  <!-- PBL 연계 배너 -->
+  <div id="calc-pbl-link" style="display:none;background:rgba(184,137,58,0.15);border:1px solid rgba(184,137,58,0.35);border-radius:10px;padding:10px 12px;margin-bottom:12px;font-size:12px;color:var(--gold);line-height:1.5">
+    <div style="font-weight:700;margin-bottom:3px">📌 PBL 미션 연계 실천</div>
+    <div id="calc-pbl-desc"></div>
+  </div>
+  <div style="display:grid;gap:10px;margin-bottom:14px">
     <div class="fg"><label>학급 인원</label><input type="number" id="stu" value="26" min="1" max="40" oninput="calcCO2()"></div>
     <div class="fg"><label>실천 기간 (주)</label><input type="number" id="wk" value="4" min="1" max="20" oninput="calcCO2()"></div>
     <div class="fg"><label>실천 유형</label>
-      <select id="ptype" oninput="calcCO2()">
-        <option value="recycle">분리배출 (주 0.225kg/인)</option>
-        <option value="energy">에어컨 1도 절약</option>
-        <option value="vegan">채식 하루 (2.5kg/인)</option>
+      <select id="ptype" onchange="calcCO2()">
+        <option value="recycle">♻️ 분리배출</option>
+        <option value="energy">❄️ 에어컨 1도 절약 (학교 전체)</option>
+        <option value="vegan">🥗 채식의 날 (주 1회)</option>
+        <option value="plant">🌱 나무 심기</option>
+        <option value="local">🍎 로컬푸드 소비</option>
       </select>
     </div>
-    <div style="background:rgba(74,158,115,.09);border-radius:10px;padding:16px;text-align:center">
-      <div style="font-size:14px;color:var(--dim);margin-bottom:4px">우리 반 CO₂ 절감량</div>
-      <div style="font-size:32px;font-weight:900;color:var(--gold);font-family:'DM Mono',monospace" id="co2r">23.4</div>
-      <div style="font-size:14px;color:var(--dim)">kg CO₂</div>
-      <div style="font-size:15px;color:var(--mint);margin-top:8px" id="piner">🌲 소나무 2.2그루 효과</div>
+    <div style="background:rgba(74,158,115,.09);border-radius:12px;padding:16px;text-align:center">
+      <div style="font-size:11px;color:var(--dim);margin-bottom:6px;font-weight:600;letter-spacing:0.5px">우리 반 CO₂ 절감량</div>
+      <div style="font-size:36px;font-weight:900;color:var(--gold);line-height:1;font-variant-numeric:tabular-nums" id="co2r">23.4</div>
+      <div style="font-size:13px;color:var(--dim);margin-top:4px">kg CO₂</div>
+      <div style="font-size:14px;color:var(--mint);margin-top:10px;font-weight:700" id="piner">🌲 소나무 2.2그루 효과</div>
+      <div style="font-size:11px;color:var(--dim);margin-top:6px" id="calc-basis"></div>
     </div>
+    <div id="calc-compare" style="font-size:12px;color:rgba(134,201,164,0.8);line-height:1.6;display:none"></div>
   </div>
   <div class="divider"></div>
   <div class="chart-title">🌡️ 2025년 경북 월별 기온</div>
@@ -1641,6 +1650,7 @@ async function genPBL() {
   STATE.step2Done = true;
   out.dataset.loading = "0";
   out.classList.add("lit");
+  syncCalcWithPBL();
   streamText(out, txt, cp);
   if (n2) n2.classList.add("show");
   updateStepBadges();
@@ -1660,8 +1670,8 @@ function buildRecordText(grade, subject, kw) {
       if (lines[i].indexOf("탐구 문제") >= 0 || lines[i].indexOf("탐구문제") >= 0) { qIdx = i; break; }
     }
     if (qIdx >= 0) {
-      q1 = (lines[qIdx+1] || "").replace(/^[\d\.\s]+/, "").slice(0, 55);
-      q2 = (lines[qIdx+2] || "").replace(/^[\d\.\s]+/, "").slice(0, 55);
+      q1 = (lines[qIdx+1] || "").replace(/^[①②③\d\.\s]+/, "").trim().slice(0, 80);
+      q2 = (lines[qIdx+2] || "").replace(/^[①②③\d\.\s]+/, "").trim().slice(0, 80);
     }
   }
 
@@ -1669,8 +1679,8 @@ function buildRecordText(grade, subject, kw) {
   if (STATE.pblText) {
     var plines = STATE.pblText.split("\n").filter(function(l){ return l.trim(); });
     for (var i = 0; i < plines.length; i++) {
-      if (plines[i].indexOf("①") === 0 && !pbl1) pbl1 = plines[i].replace("①","").trim().slice(0,50);
-      if (plines[i].indexOf("②") === 0 && !pbl2) pbl2 = plines[i].replace("②","").trim().slice(0,50);
+      if (plines[i].indexOf("①") === 0 && !pbl1) pbl1 = plines[i].replace("①","").trim().slice(0,75);
+      if (plines[i].indexOf("②") === 0 && !pbl2) pbl2 = plines[i].replace("②","").trim().slice(0,75);
     }
   }
 
@@ -1686,11 +1696,11 @@ function buildRecordText(grade, subject, kw) {
        + "학생 사전 생각 공유(3분) → 탐구 방향 안내(2분)\n\n"
        + "[전개 30분]\n"
        + "① 핵심 데이터 확인 및 그래프 작성(10분)\n"
-       + "   " + (q2 || "공공데이터 수치 확인 → 표·그래프 작성") + "\n"
+       + "    → " + (q1 || "공공데이터 수치 확인 → 표·그래프 작성") + "\n"
        + "② 모둠별 탐구 토의(10분)\n"
-       + "   " + (pbl1 || "데이터 해석 → 원인·결과 분석") + "\n"
+       + "    → " + (q2 || (pbl1 || "데이터 해석 → 원인·결과 분석")) + "\n"
        + "③ 실천 계획 수립(10분)\n"
-       + "   " + (pbl2 || "PBL 실천 미션 단계 확인 → 역할 분담") + "\n\n"
+       + "    → " + (pbl2 || "PBL 실천 미션 단계 확인 → 역할 분담") + "\n\n"
        + "[정리 10분]\n탐구 결과 발표 + 실천 서약서 작성\n\n"
        + "[연계 성취기준]\n"
        + (function() {
@@ -2369,16 +2379,140 @@ async function genAnswer() {
 
 
 // ══ CO₂ CALCULATOR ══
+// ── 키워드별 기본 실천유형 매핑 ──
+var KW_PTYPE_MAP = {
+  "에너지":   "energy",
+  "기온전력": "energy",
+  "폭염기온": "energy",
+  "산불":     "plant",
+  "식물":     "plant",
+  "탄소":     "recycle",
+  "사과":     "local",
+  "멸종위기": "recycle"
+};
+
+// ── 실천유형별 상세 정보 ──
+var PTYPE_INFO = {
+  "recycle": {
+    label: "분리배출",
+    // 환경부 LCA: 재활용 0.44 kgCO2/kg, 주간 1인 배출량 0.51kg → 절감 0.225 kg/인/주
+    calcCO2: function(n, w) { return n * w * 0.225; },
+    basis: "환경부 LCA 기준 · 1인당 주 0.225 kg CO₂ 절감",
+    compare: null
+  },
+  "energy": {
+    label: "에어컨 1도 절약",
+    // 에너지관리공단: 학교 전체 에어컨 1도 절약 = 연 248,000 kg CO₂
+    // 주간: 248,000 / 52 = 4,769 kg / 학급 비율(20학급): 4,769 / 20 = 238 kg/주
+    calcCO2: function(n, w) { return 238 * w; },
+    basis: "에너지관리공단 기준 · 학급당 주 238 kg CO₂ 절감",
+    compare: function(co2) {
+      var pine = (co2 / 10.8).toFixed(0);
+      return "🆚 분리배출 대비 약 " + Math.round(co2 / (26*4*0.225)) + "배 효과 (학교 전체 기준)";
+    }
+  },
+  "vegan": {
+    label: "채식의 날 (주 1회)",
+    // 식품 탄소발자국: 육식 1끼 vs 채식 1끼 차이 약 1.5 kg CO₂/인
+    calcCO2: function(n, w) { return n * w * 1.5; },
+    basis: "식품 탄소발자국 기준 · 1인 채식 1회당 1.5 kg CO₂ 절감",
+    compare: null
+  },
+  "plant": {
+    label: "나무 심기",
+    // 소나무 1그루 연간 10.8 kg CO₂ 흡수 (국립산림과학원)
+    // 나무 심기는 인원 × 주수보다 그루 수로 계산
+    calcCO2: function(n, w) { return Math.round(n / 5) * 10.8; }, // 5명당 1그루 기준
+    basis: "국립산림과학원 기준 · 소나무 1그루 연 10.8 kg CO₂ 흡수",
+    compare: null
+  },
+  "local": {
+    label: "로컬푸드 소비",
+    // 식품 수송 탄소발자국: 수입산 vs 국산 운송 거리 차이 약 0.3 kg CO₂/kg
+    // 1인 주간 농산물 소비 약 1kg 기준
+    calcCO2: function(n, w) { return n * w * 0.3; },
+    basis: "식품 수송 LCA 기준 · 1인 주 0.3 kg CO₂ 절감",
+    compare: null
+  }
+};
+
 function calcCO2() {
   var n = parseInt(document.getElementById("stu").value) || 26;
   var w = parseInt(document.getElementById("wk").value) || 4;
-  var t = document.getElementById("ptype").value;
-  var co2 = (t === "recycle") ? n * w * 0.225 : (t === "energy") ? 248 * (w / 52) : n * w * 0.5;
-  document.getElementById("co2r").textContent = co2.toFixed(1);
-  var pine = (t === "energy")
-    ? "🌲 소나무 " + (co2 * 1000 / 10.8).toFixed(0) + "그루 효과"
-    : "🌲 소나무 " + (co2 / 10.8).toFixed(1) + "그루 효과";
-  document.getElementById("piner").textContent = pine;
+  var t = document.getElementById("ptype") ? document.getElementById("ptype").value : "recycle";
+  var info = PTYPE_INFO[t] || PTYPE_INFO["recycle"];
+
+  // CO₂ 계산 (모두 kg 단위)
+  var co2 = info.calcCO2(n, w);
+
+  // 소나무 환산 — 모든 유형 동일 공식: kg / 10.8 그루
+  var pineNum = co2 / 10.8;
+  var pineStr = pineNum >= 1000
+    ? "🌲 소나무 " + (pineNum / 1000).toFixed(1) + "천 그루 흡수량"
+    : pineNum >= 10
+    ? "🌲 소나무 " + pineNum.toFixed(0) + "그루 흡수량"
+    : "🌲 소나무 " + pineNum.toFixed(1) + "그루 흡수량";
+
+  // 결과 표시
+  var co2El = document.getElementById("co2r");
+  if (co2El) co2El.textContent = co2 >= 100 ? co2.toFixed(0) : co2.toFixed(1);
+  var pineEl = document.getElementById("piner");
+  if (pineEl) pineEl.textContent = pineStr;
+
+  // 계산 근거 표시
+  var basisEl = document.getElementById("calc-basis");
+  if (basisEl) basisEl.textContent = info.basis;
+
+  // 비교 표시
+  var cmpEl = document.getElementById("calc-compare");
+  if (cmpEl) {
+    if (info.compare) {
+      cmpEl.textContent = info.compare(co2);
+      cmpEl.style.display = "block";
+    } else {
+      cmpEl.style.display = "none";
+    }
+  }
+
+  // PBL 연계 배너 업데이트
+  updateCalcPblLink(t);
+}
+
+// PBL 미션과 계산기 연계 배너 업데이트
+function updateCalcPblLink(ptype) {
+  var banner = document.getElementById("calc-pbl-link");
+  var desc   = document.getElementById("calc-pbl-desc");
+  if (!banner || !desc) return;
+
+  var kw = STATE.kw;
+  var m  = missionMap[kw];
+  if (!m || !m.action) { banner.style.display = "none"; return; }
+
+  // 현재 실천유형이 PBL 미션 키워드와 연관 있는지 확인
+  var kwPtype = KW_PTYPE_MAP[kw] || "recycle";
+  var linked  = (ptype === kwPtype);
+
+  banner.style.display = "block";
+  banner.style.borderColor = linked ? "rgba(134,201,164,0.5)" : "rgba(184,137,58,0.35)";
+  banner.style.background  = linked ? "rgba(70,140,80,0.12)"  : "rgba(184,137,58,0.12)";
+  banner.style.color       = linked ? "var(--mint)"           : "var(--gold)";
+
+  var prefix = linked
+    ? "✅ 현재 선택이 PBL 미션과 연계됩니다!\n"
+    : "💡 이 키워드의 PBL 미션 행동:\n";
+  desc.textContent = prefix + m.action.replace("🌱 ", "").slice(0, 80) + "…";
+}
+
+// PBL 생성 후 계산기 실천유형 자동 연동
+function syncCalcWithPBL() {
+  var kw = STATE.kw;
+  var kwPtype = KW_PTYPE_MAP[kw];
+  if (!kwPtype) return;
+  var ptypeEl = document.getElementById("ptype");
+  if (ptypeEl) {
+    ptypeEl.value = kwPtype;
+  }
+  calcCO2();
 }
 
 // ══ CHARTS ══
