@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -644,7 +645,7 @@ pre {
   </div>
 
   <!-- 다음 단계 유도 버튼 -->
-  <button class="next-btn" id="next1" onclick="goTab2()">
+  <button class="next-step" id="next1" onclick="goTab2()">
     ② PBL 실천미션 자동 생성하기 →
   </button>
 
@@ -732,7 +733,7 @@ pre {
     <button class="copybtn" id="cp-pbl" onclick="doCopy('out-pbl')">📋 복사</button>
   </div>
 
-  <button class="next-btn" id="next2" onclick="goTab3()">
+  <button class="next-step" id="next2" onclick="goTab3()">
     ③ 수업안·생기부 자동 생성하기 →
   </button>
 </div>
@@ -750,25 +751,114 @@ pre {
     <div class="fg"><label>실천 유형</label>
       <select id="ptype" onchange="calcCO2()">
         <option value="recycle">♻️ 분리배출</option>
-        <option value="energy">❄️ 에어컨 1도 절약 (학교 전체)</option>
+        <option value="energy">❄️ 에어컨 1도 절약 (학급 기준)</option>
         <option value="vegan">🥗 채식의 날 (주 1회)</option>
         <option value="plant">🌱 나무 심기</option>
         <option value="local">🍎 로컬푸드 소비</option>
       </select>
     </div>
-    <div style="background:rgba(74,158,115,.09);border-radius:12px;padding:16px;text-align:center">
-      <div style="font-size:11px;color:var(--dim);margin-bottom:6px;font-weight:600;letter-spacing:0.5px">우리 반 CO₂ 절감량</div>
-      <div style="font-size:36px;font-weight:900;color:var(--gold);line-height:1;font-variant-numeric:tabular-nums" id="co2r">23.4</div>
-      <div style="font-size:13px;color:var(--dim);margin-top:4px">kg CO₂</div>
-      <div style="font-size:14px;color:var(--mint);margin-top:10px;font-weight:700" id="piner">🌲 소나무 2.2그루 효과</div>
-      <div style="font-size:11px;color:var(--dim);margin-top:6px" id="calc-basis"></div>
+    <!-- 메인 숫자 카드 -->
+    <div style="background:linear-gradient(135deg,rgba(30,77,56,0.12),rgba(184,137,58,0.08));border:1px solid rgba(30,77,56,0.2);border-radius:14px;padding:18px 16px;text-align:center;position:relative;overflow:hidden">
+      <div style="font-size:10px;font-weight:700;color:var(--dim);letter-spacing:1.5px;margin-bottom:10px">우리 반 CO₂ 절감량</div>
+      <!-- 숫자 -->
+      <div style="display:flex;align-items:baseline;justify-content:center;gap:6px">
+        <div style="font-size:52px;font-weight:900;color:var(--gold);line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-2px;transition:all 0.4s ease" id="co2r">23.4</div>
+        <div style="font-size:15px;color:var(--dim);font-weight:600">kg CO₂</div>
+      </div>
+      <!-- 소나무 환산 -->
+      <div style="font-size:15px;color:var(--mint);margin-top:10px;font-weight:800;letter-spacing:-0.3px" id="piner">🌲 소나무 2.2그루 효과</div>
+      <!-- 계산 근거 -->
+      <div style="font-size:10px;color:rgba(255,255,255,0.35);margin-top:4px" id="calc-basis"></div>
     </div>
-    <div id="calc-compare" style="font-size:12px;color:rgba(134,201,164,0.8);line-height:1.6;display:none"></div>
+
+    <!-- 소나무 시각화 -->
+    <div style="background:rgba(255,255,255,0.04);border-radius:12px;padding:12px;min-height:60px">
+      <div style="font-size:10px;color:var(--dim);font-weight:600;letter-spacing:1px;margin-bottom:8px">🌲 소나무로 시각화 (1그루 = 연 10.8 kg CO₂ 흡수)</div>
+      <div id="pine-viz" style="display:flex;flex-wrap:wrap;gap:3px;line-height:1"></div>
+      <div id="pine-label" style="font-size:10px;color:var(--dim);margin-top:6px"></div>
+    </div>
+
+    <!-- 실생활 비유 -->
+    <div id="co2-analogy" style="background:rgba(184,137,58,0.08);border:1px solid rgba(184,137,58,0.2);border-radius:12px;padding:12px">
+      <div style="font-size:10px;font-weight:700;color:var(--gold);letter-spacing:1px;margin-bottom:8px">💡 이만큼을 줄이면...</div>
+      <div id="analogy-items" style="display:grid;grid-template-columns:1fr 1fr;gap:6px"></div>
+    </div>
+
+    <!-- 목표 게이지 -->
+    <div style="background:rgba(255,255,255,0.04);border-radius:10px;padding:12px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">
+        <div style="font-size:10px;color:var(--dim);font-weight:600">학급 연간 목표 달성률</div>
+        <div style="font-size:11px;color:var(--mint);font-weight:700" id="goal-pct">—</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.1);border-radius:4px;height:8px;overflow:hidden">
+        <div id="goal-bar" style="height:100%;border-radius:4px;background:linear-gradient(90deg,var(--sage),var(--mint));width:0%;transition:width 0.6s ease"></div>
+      </div>
+      <div style="font-size:10px;color:rgba(255,255,255,0.3);margin-top:5px">목표: 학급 연간 500 kg CO₂ 절감</div>
+    </div>
+
+    <!-- 비교 텍스트 -->
+    <div id="calc-compare" style="font-size:12px;color:rgba(134,201,164,0.8);line-height:1.6;display:none;background:rgba(134,201,164,0.08);border-radius:10px;padding:10px"></div>
   </div>
   <div class="divider"></div>
-  <div class="chart-title">🌡️ 2025년 경북 월별 기온</div>
-  <div id="temp-bars"></div>
-  <div style="font-size:11px;color:var(--dim);margin-top:5px">출처: 기상청 / 공공누리 1유형</div>
+  <div class="chart-title">📐 탄소절감 산출식 근거</div>
+  <div style="display:grid;gap:8px;margin-top:8px">
+
+    <div style="background:rgba(255,255,255,0.06);border-radius:9px;padding:10px 12px">
+      <div style="font-size:11px;font-weight:700;color:var(--sageLt);margin-bottom:4px">❄️ 에어컨 1도 절약</div>
+      <div style="font-size:11px;color:rgba(255,255,255,0.75);line-height:1.7">
+        학교 전체 248,000 kg CO₂ / 년<br>
+        ÷ 52주 ÷ 20학급 = <b style="color:var(--gold)">우리 학급 238 kg / 주</b><br>
+        <span style="color:rgba(255,255,255,0.45);font-size:10px">출처: 한국에너지공단 · 공공누리 1유형</span>
+      </div>
+    </div>
+
+    <div style="background:rgba(255,255,255,0.06);border-radius:9px;padding:10px 12px">
+      <div style="font-size:11px;font-weight:700;color:var(--sageLt);margin-bottom:4px">♻️ 분리배출</div>
+      <div style="font-size:11px;color:rgba(255,255,255,0.75);line-height:1.7">
+        재활용 0.44 kg CO₂ 절감 / kg<br>
+        1인 주간 배출량 0.51 kg 기준<br>
+        → <b style="color:var(--gold)">0.225 kg CO₂ / 인·주</b><br>
+        <span style="color:rgba(255,255,255,0.45);font-size:10px">출처: 환경부 LCA 기준 · 공공누리 1유형</span>
+      </div>
+    </div>
+
+    <div style="background:rgba(255,255,255,0.06);border-radius:9px;padding:10px 12px">
+      <div style="font-size:11px;font-weight:700;color:var(--sageLt);margin-bottom:4px">🥗 채식의 날 (주 1회)</div>
+      <div style="font-size:11px;color:rgba(255,255,255,0.75);line-height:1.7">
+        육식 1끼 대비 채식 전환 시<br>
+        → <b style="color:var(--gold)">1.5 kg CO₂ / 인·회</b><br>
+        <span style="color:rgba(255,255,255,0.45);font-size:10px">출처: 식품 탄소발자국 DB · 농촌진흥청</span>
+      </div>
+    </div>
+
+    <div style="background:rgba(255,255,255,0.06);border-radius:9px;padding:10px 12px">
+      <div style="font-size:11px;font-weight:700;color:var(--sageLt);margin-bottom:4px">🌱 나무 심기</div>
+      <div style="font-size:11px;color:rgba(255,255,255,0.75);line-height:1.7">
+        소나무 1그루 연간 흡수량<br>
+        → <b style="color:var(--gold)">10.8 kg CO₂ / 그루·년</b><br>
+        (5명당 1그루 기여 기준 적용)<br>
+        <span style="color:rgba(255,255,255,0.45);font-size:10px">출처: 국립산림과학원 · 공공누리 1유형</span>
+      </div>
+    </div>
+
+    <div style="background:rgba(255,255,255,0.06);border-radius:9px;padding:10px 12px">
+      <div style="font-size:11px;font-weight:700;color:var(--sageLt);margin-bottom:4px">🍎 로컬푸드 소비</div>
+      <div style="font-size:11px;color:rgba(255,255,255,0.75);line-height:1.7">
+        수입산 대비 운송 탄소 절감<br>
+        → <b style="color:var(--gold)">0.3 kg CO₂ / 인·주</b><br>
+        <span style="color:rgba(255,255,255,0.45);font-size:10px">출처: 식품 수송 LCA · 농촌진흥청</span>
+      </div>
+    </div>
+
+    <div style="padding:8px 10px;border-radius:8px;background:rgba(134,201,164,0.1);border:1px solid rgba(134,201,164,0.2)">
+      <div style="font-size:10px;color:rgba(134,201,164,0.9);line-height:1.7">
+        🌲 <b>소나무 환산 공식</b><br>
+        CO₂ 절감량(kg) ÷ 10.8 = 소나무 흡수 그루 수<br>
+        <span style="color:rgba(255,255,255,0.4)">국립산림과학원 기준</span>
+      </div>
+    </div>
+
+  </div>
 </div></div>
 </div>
 </div>
@@ -1265,8 +1355,7 @@ function updateBanner() {
   var achDiv = document.getElementById("ach-dynamic");
   if (achDiv) {
     var gNum = STATE.grade.replace("학년","");
-    var gAcs = KW_GRADE_ACS[gNum] || KW_GRADE_ACS["5"] || {};
-    var acList = gAcs[STATE.kw] || [];
+    var acList = (KW_GRADE_ACS[STATE.kw] || {})[gNum] || [];
     if (acList.length === 0) {
       achDiv.innerHTML = '<span style="color:var(--dim)">키워드를 선택하면 관련 성취기준이 표시됩니다.</span>';
     } else {
@@ -1762,8 +1851,7 @@ async function genRecord() {
   var llo = document.getElementById("llo");
 
   var gradeNum = STATE.grade.replace("학년","");
-  var gradeAcs = KW_GRADE_ACS[gradeNum] || KW_GRADE_ACS["5"] || {};
-  var codes    = gradeAcs[STATE.kw] || [];
+  var codes    = (KW_GRADE_ACS[STATE.kw] || {})[gradeNum] || [];
   var mainCode = codes[0] || "";
   var subCode  = codes[1] || "";
   var mainStd  = STD_DB[mainCode] || null;
@@ -2401,15 +2489,12 @@ var PTYPE_INFO = {
     compare: null
   },
   "energy": {
-    label: "에어컨 1도 절약",
+    label: "에어컨 1도 절약 (학급 기준)",
     // 에너지관리공단: 학교 전체 에어컨 1도 절약 = 연 248,000 kg CO₂
     // 주간: 248,000 / 52 = 4,769 kg / 학급 비율(20학급): 4,769 / 20 = 238 kg/주
     calcCO2: function(n, w) { return 238 * w; },
-    basis: "에너지관리공단 기준 · 학급당 주 238 kg CO₂ 절감",
-    compare: function(co2) {
-      var pine = (co2 / 10.8).toFixed(0);
-      return "🆚 분리배출 대비 약 " + Math.round(co2 / (26*4*0.225)) + "배 효과 (학교 전체 기준)";
-    }
+    basis: "에너지관리공단 기준 · 학급당 주 238 kg CO₂ 절감 (전교 248톤/년 ÷ 52주 ÷ 20학급)",
+    compare: null
   },
   "vegan": {
     label: "채식의 날 (주 1회)",
@@ -2444,26 +2529,34 @@ function calcCO2() {
 
   // CO₂ 계산 (모두 kg 단위)
   var co2 = info.calcCO2(n, w);
-
-  // 소나무 환산 — 모든 유형 동일 공식: kg / 10.8 그루
   var pineNum = co2 / 10.8;
+
+  // ── 숫자 카운터 애니메이션 ──
+  animateCounter("co2r", co2, co2 >= 100 ? 0 : 1);
+
+  // ── 소나무 텍스트 ──
   var pineStr = pineNum >= 1000
     ? "🌲 소나무 " + (pineNum / 1000).toFixed(1) + "천 그루 흡수량"
     : pineNum >= 10
-    ? "🌲 소나무 " + pineNum.toFixed(0) + "그루 흡수량"
+    ? "🌲 소나무 " + Math.round(pineNum) + "그루 흡수량"
     : "🌲 소나무 " + pineNum.toFixed(1) + "그루 흡수량";
-
-  // 결과 표시
-  var co2El = document.getElementById("co2r");
-  if (co2El) co2El.textContent = co2 >= 100 ? co2.toFixed(0) : co2.toFixed(1);
   var pineEl = document.getElementById("piner");
   if (pineEl) pineEl.textContent = pineStr;
 
-  // 계산 근거 표시
+  // ── 소나무 시각화 ──
+  renderPineViz(pineNum);
+
+  // ── 실생활 비유 ──
+  renderAnalogy(co2);
+
+  // ── 목표 게이지 ──
+  renderGoalBar(co2);
+
+  // ── 계산 근거 ──
   var basisEl = document.getElementById("calc-basis");
   if (basisEl) basisEl.textContent = info.basis;
 
-  // 비교 표시
+  // ── 비교 텍스트 ──
   var cmpEl = document.getElementById("calc-compare");
   if (cmpEl) {
     if (info.compare) {
@@ -2474,8 +2567,104 @@ function calcCO2() {
     }
   }
 
-  // PBL 연계 배너 업데이트
   updateCalcPblLink(t);
+}
+
+// ── 숫자 카운터 애니메이션 ──
+function animateCounter(elId, target, decimals) {
+  var el = document.getElementById(elId);
+  if (!el) return;
+  var start = parseFloat(el.textContent) || 0;
+  var duration = 600;
+  var startTime = null;
+  function step(ts) {
+    if (!startTime) startTime = ts;
+    var progress = Math.min((ts - startTime) / duration, 1);
+    var ease = 1 - Math.pow(1 - progress, 3); // easeOutCubic
+    var current = start + (target - start) * ease;
+    el.textContent = decimals === 0 ? Math.round(current) : current.toFixed(decimals);
+    if (progress < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+// ── 소나무 시각화 ──
+function renderPineViz(pineNum) {
+  var viz = document.getElementById("pine-viz");
+  var lbl = document.getElementById("pine-label");
+  if (!viz) return;
+  viz.innerHTML = "";
+  var total = Math.min(Math.round(pineNum), 100); // 최대 100그루
+  var fullTrees = Math.floor(pineNum);
+  var partial  = pineNum - fullTrees;
+  for (var i = 0; i < total; i++) {
+    var span = document.createElement("span");
+    span.style.cssText = "font-size:18px;line-height:1;display:inline-block;transition:transform 0.1s";
+    span.style.animationDelay = (i * 30) + "ms";
+    // 부분 그루 표현 (마지막)
+    if (i === fullTrees && partial > 0) {
+      span.textContent = "🌿";
+      span.style.opacity = "0.6";
+      span.title = "(" + partial.toFixed(1) + " 그루 부분)";
+    } else {
+      span.textContent = "🌲";
+      span.title = (i + 1) + "번째 소나무";
+    }
+    viz.appendChild(span);
+  }
+  if (pineNum > 100) {
+    var more = document.createElement("span");
+    more.style.cssText = "font-size:12px;color:rgba(134,201,164,0.7);margin-left:6px;align-self:center";
+    more.textContent = "+ " + Math.round(pineNum - 100) + "그루 더";
+    viz.appendChild(more);
+  }
+  if (lbl) {
+    if (total === 0) {
+      lbl.textContent = "실천을 시작하면 소나무가 자라납니다 🌱";
+    } else {
+      lbl.textContent = "= 소나무 " + (pineNum >= 1000 ? (pineNum/1000).toFixed(1)+"천" : Math.round(pineNum)) + "그루가 1년간 흡수하는 CO₂ 양";
+    }
+  }
+}
+
+// ── 실생활 비유 ──
+function renderAnalogy(co2) {
+  var el = document.getElementById("analogy-items");
+  if (!el) return;
+  // 비유 기준 (출처: 환경부·탄소발자국 계수)
+  var analogies = [
+    { icon: "🚗", label: "자동차 운행", value: (co2 / 0.21).toFixed(0), unit: "km 절감" },
+    { icon: "✈️", label: "비행기 탑승", value: (co2 / 0.255).toFixed(0), unit: "분 상당" },
+    { icon: "💡", label: "형광등 절약", value: (co2 / 0.000193).toFixed(0), unit: "시간 절전" },
+    { icon: "🧊", label: "냉장고 가동", value: (co2 / 0.0014).toFixed(0), unit: "시간 상당" },
+  ];
+  el.innerHTML = analogies.map(function(a) {
+    var val = parseFloat(a.value);
+    var display = val >= 10000 ? (val/10000).toFixed(1)+"만"
+                : val >= 1000  ? (val/1000).toFixed(1)+"천"
+                : val.toFixed(0);
+    return '<div style="background:rgba(255,255,255,0.05);border-radius:8px;padding:8px;text-align:center">'
+         + '<div style="font-size:20px;line-height:1;margin-bottom:4px">' + a.icon + '</div>'
+         + '<div style="font-size:15px;font-weight:800;color:var(--gold);font-variant-numeric:tabular-nums;line-height:1">' + display + '</div>'
+         + '<div style="font-size:9px;color:rgba(255,255,255,0.5);margin-top:3px">' + a.unit + '</div>'
+         + '<div style="font-size:9px;color:rgba(255,255,255,0.4)">' + a.label + '</div>'
+         + '</div>';
+  }).join("");
+}
+
+// ── 목표 게이지 ──
+function renderGoalBar(co2) {
+  var GOAL = 500; // 학급 연간 목표 kg
+  var pct  = Math.min((co2 / GOAL) * 100, 100);
+  var bar  = document.getElementById("goal-bar");
+  var pctEl = document.getElementById("goal-pct");
+  if (bar)   bar.style.width = pct.toFixed(1) + "%";
+  if (pctEl) {
+    pctEl.textContent = pct.toFixed(1) + "% 달성";
+    pctEl.style.color = pct >= 80 ? "var(--mint)"
+                      : pct >= 50 ? "var(--gold)"
+                      : "var(--dim)";
+  }
 }
 
 // PBL 미션과 계산기 연계 배너 업데이트
@@ -2618,6 +2807,7 @@ function syncCalcWithPBL() {
 // 초기 배너 동기화
 calcCO2();
 updateBanner();
+
 </script>
 </body>
 </html>
